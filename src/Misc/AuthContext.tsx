@@ -1,6 +1,6 @@
 import React from "react";
 
-type AuthData = {
+export type AuthData = {
   firstName: string;
   lastName: string;
   group: string;

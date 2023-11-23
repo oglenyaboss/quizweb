@@ -17,7 +17,7 @@ type Users = {
   wrongCount: number;
 };
 
-type TestData = {
+export type TestData = {
   visible: boolean;
   users: Users[];
   name: string;
@@ -28,9 +28,20 @@ type TestData = {
   date: string;
 };
 
+export interface Test {
+  name: string;
+  category: string;
+  questions: Question[];
+  users: Users[];
+  visible: boolean;
+  time: number;
+  date: string;
+  id: string;
+}
+
 type TestContextType = {
   testData: TestData[];
-  setTestData: React.Dispatch<React.SetStateAction<TestData>>;
+  setTestData: React.Dispatch<React.SetStateAction<TestData[]>>;
 };
 
 const TestContext = React.createContext<TestContextType>({

@@ -12,13 +12,7 @@ import AuthContext from "./Misc/AuthContext";
 import TestContext from "./Misc/TestsContext";
 import { ConfigProvider } from "antd";
 import { db } from "./Misc/Firebase";
-import {
-  doc,
-  setDoc,
-  onSnapshot,
-  collection,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, setDoc, onSnapshot, collection } from "firebase/firestore";
 import AdminTestsPage from "./Pages/AdminTestsPage/AdminTestsPage";
 import AdminTestPage from "./Pages/AdminTestPage/AdminTestPage";
 import { debounce } from "lodash";
@@ -36,7 +30,7 @@ function App() {
       correctAnswers: number;
       fastestTest: number;
     };
-    achievements: { name: string; description: string }[];
+    achievements: { name: string; description: string; locked: boolean }[];
   }>({
     firstName: "",
     lastName: "",

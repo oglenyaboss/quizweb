@@ -1,25 +1,18 @@
 import UserInfoBottomItem from "./Components/UserInfoBottomItem.tsx";
 import FeaturedItem from "./Components/FeaturedItem.tsx";
 import "./MainPage.css";
-import React, { ReactHTMLElement } from "react";
+import React from "react";
 import AuthContext from "../../Misc/AuthContext.tsx";
 import { Link } from "react-router-dom";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import { storage, db, auth } from "../../Misc/Firebase.tsx";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { Modal, Spin, Tooltip, notification } from "antd";
-import { useNavigate } from "react-router-dom";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { storage, db } from "../../Misc/Firebase.tsx";
+import { doc, setDoc } from "firebase/firestore";
+import { Spin, Tooltip, notification } from "antd";
 import TestContext from "../../Misc/TestsContext.tsx";
 import { LoadingOutlined } from "@ant-design/icons";
 import Achievement from "./Components/Achievement.tsx";
 
 export default function MainPage() {
-  const navigate = useNavigate();
   const { authData, setAuthData } = React.useContext(AuthContext);
   const [loading, setLoading] = React.useState(true);
   const { testData } = React.useContext(TestContext);

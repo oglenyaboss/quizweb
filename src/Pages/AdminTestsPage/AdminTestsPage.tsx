@@ -3,15 +3,14 @@ import "../TestsPage/TestsPage.css";
 import { doc, deleteDoc, collection, addDoc } from "firebase/firestore";
 import { db } from "../../Misc/Firebase";
 import React from "react";
-import { Link } from "react-router-dom";
 import { Button, Spin, Popconfirm } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import TestContext from "../../Misc/TestsContext";
 import { useNavigate } from "react-router-dom";
 
 export default function TestsPage() {
-  const [loading, setLoading] = React.useState(false);
-  const { testData, setTestData } = React.useContext(TestContext);
+  const [loading] = React.useState(false);
+  const { testData } = React.useContext(TestContext);
   const [testId, setTestId] = React.useState<string>("");
   const navigate = useNavigate();
   const today = new Date();

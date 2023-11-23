@@ -1,16 +1,14 @@
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Header from "./Main/Header";
 import Menu from "./Main/Menu";
 import AuthContext from "./AuthContext";
 import React from "react";
 import { Modal } from "antd";
 import { useNavigate } from "react-router-dom";
-import TestContext from "./TestsContext";
 
 export default function Layout() {
   const navigate = useNavigate();
   const { authData } = React.useContext(AuthContext);
-  const { testData } = React.useContext(TestContext);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   React.useEffect(() => {
     if (

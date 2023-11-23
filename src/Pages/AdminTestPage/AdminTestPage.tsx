@@ -1,43 +1,28 @@
-import React, { LegacyRef } from "react";
+import React from "react";
 import {
   Button,
   Input,
   Modal,
-  Radio,
-  Space,
   message,
   InputNumber,
   DatePicker,
   Select,
-  Form,
-  Checkbox,
   Spin,
   Table,
   Tooltip,
   Tour,
-  InputRef,
-  TourProps,
 } from "antd";
 const { TextArea } = Input;
 import "../TestPage/TestPage.css";
-import { useParams, useNavigate } from "react-router-dom";
-import TestContext from "../../Misc/TestsContext";
+import { useParams } from "react-router-dom";
+import TestContext, { TestData, Test } from "../../Misc/TestsContext";
 import AuthContext from "../../Misc/AuthContext";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../Misc/Firebase";
 import { LoadingOutlined } from "@ant-design/icons";
-import type {
-  ColumnsType,
-  FilterValue,
-  SorterResult,
-} from "antd/es/table/interface";
+import type { FilterValue } from "antd/es/table/interface";
 
-export default function TestPage(props: any) {
+export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [loadingImg, setLoadingImg] = React.useState(true);
@@ -51,8 +36,7 @@ export default function TestPage(props: any) {
   const [test, setTest] = React.useState<any>({});
   const [time, setTime] = React.useState(0); // 20 minutes in seconds
   const { authData, setAuthData } = React.useContext(AuthContext);
-  const navigate = useNavigate();
-  const [filteredInfo, setFilteredInfo] = React.useState<
+  const [, setFilteredInfo] = React.useState<
     Record<string, FilterValue | null>
   >({});
   const [tourOpen, setTourOpen] = React.useState(false);
@@ -60,13 +44,11 @@ export default function TestPage(props: any) {
   const ref1 = React.useRef<HTMLDivElement>(null);
   const ref2 = React.useRef<HTMLImageElement>(null);
   const ref3 = React.useRef<HTMLDivElement>(null);
-  const ref4 = React.useRef<HTMLDivElement>(null);
   const ref5 = React.useRef<HTMLInputElement>(null);
   const ref6 = React.useRef<HTMLDivElement>(null);
   const ref7 = React.useRef<HTMLDivElement>(null);
   const ref8 = React.useRef<HTMLButtonElement>(null);
   const ref9 = React.useRef<HTMLButtonElement>(null);
-  const ref10 = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     if (testState.isFinished) {
@@ -366,10 +348,10 @@ export default function TestPage(props: any) {
                   <Input
                     value={test.name}
                     onChange={(e) => {
-                      setTestData((prevTestData: any) => {
+                      setTestData((prevTestData: TestData[]) => {
                         const newTestData = [...prevTestData];
                         const testIndex = newTestData.findIndex(
-                          (test: any) => test.id === id
+                          (test: Test) => test.id === id
                         );
                         newTestData[testIndex].name = e.target.value;
                         return newTestData;
@@ -481,13 +463,18 @@ export default function TestPage(props: any) {
                       <DatePicker
                         defaultValue={test.date}
                         placeholder="Дата"
-                        onChange={(date, dateString) => {
-                          setTestData((prevTestData: any) => {
+                        onChange={(dateString) => {
+                          setTestData((prevTestData: TestData[]) => {
                             const newTestData = [...prevTestData];
                             const testIndex = newTestData.findIndex(
-                              (test: any) => test.id === id
+                              (test: TestData) => test.id === id
                             );
-                            newTestData[testIndex].date = dateString;
+                            if (dateString !== null) {
+                              newTestData[testIndex].date =
+                                dateString.format("YYYY-MM-DD"); // convert Dayjs object to string
+                            } else {
+                              newTestData[testIndex].date = ""; // handle null case
+                            }
                             return newTestData;
                           });
                         }}
@@ -662,7 +649,7 @@ export default function TestPage(props: any) {
                     newTestData[testIndex].questions[
                       currentQuestionIndex
                     ].answers[value].isCorrect = true;
-                    value === 0;
+                    value === "";
                     return newTestData;
                   });
                 }}

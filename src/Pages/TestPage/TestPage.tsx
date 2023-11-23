@@ -2,15 +2,12 @@ import React from "react";
 import { Button, Modal, Radio, Space, Spin, Tooltip, message } from "antd";
 import "../TestPage/TestPage.css";
 import { useParams } from "react-router-dom";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../Misc/Firebase";
-import { set } from "firebase/database";
 import TestContext from "../../Misc/TestsContext";
 import AuthContext from "../../Misc/AuthContext";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useTransition, animated, useSpring, config } from "react-spring";
+import { useTransition, animated } from "react-spring";
 
-export default function TestPage(props: any) {
+export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [value, setValue] = React.useState("");
@@ -162,7 +159,7 @@ export default function TestPage(props: any) {
     };
   }, [testState.isStarted, test?.time]);
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = () => {
     if (value === "") {
       messageApi.open({
         type: "error",
@@ -227,7 +224,7 @@ export default function TestPage(props: any) {
 
   const secondTransitions = useTransition(seconds, {
     from: {
-      position: "absolute",
+      position: "absolute" as const,
       opacity: 0,
       transform: "translate3d(0,-40px,0)",
     },
@@ -406,7 +403,7 @@ export default function TestPage(props: any) {
                 type="primary"
                 size="large"
                 onClick={() => {
-                  handleAnswer(currentQuestionIndex);
+                  handleAnswer();
                   setTestState((prevTestState: any) => ({
                     ...prevTestState,
                     isFinished: true,
@@ -422,7 +419,7 @@ export default function TestPage(props: any) {
                 type="primary"
                 size="large"
                 onClick={() => {
-                  handleAnswer(currentQuestionIndex);
+                  handleAnswer();
                 }}
               >
                 Следующий вопрос

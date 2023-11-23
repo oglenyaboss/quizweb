@@ -1,8 +1,5 @@
 import FeaturedItem from "../MainPage/Components/FeaturedItem";
 import "./TestsPage.css";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { db } from "../../Misc/Firebase";
-import { query, onSnapshot } from "firebase/firestore";
 import React from "react";
 import { Link } from "react-router-dom";
 import { Spin } from "antd";
@@ -10,34 +7,8 @@ import { LoadingOutlined } from "@ant-design/icons";
 import TestContext from "../../Misc/TestsContext";
 
 export default function TestsPage() {
-  const [loading, setLoading] = React.useState(false);
+  const [loading] = React.useState(false);
   const { testData } = React.useContext(TestContext);
-
-  const addTest = async (
-    name: string,
-    category: string,
-    picture: string,
-    description: string,
-    questions: Array<any>
-  ) => {
-    try {
-      const docRef = await addDoc(collection(db, "tests"), {
-        name,
-        category,
-        picture,
-        description,
-        questions,
-        users: [],
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  };
-
-  const changeLoading = () => {
-    setLoading(false);
-  };
 
   const testsItems = testData.map((test: any) => {
     if (test.visible === false) {

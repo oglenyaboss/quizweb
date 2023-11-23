@@ -1,33 +1,17 @@
 import "./LoginPage.css";
 import React from "react";
 import AuthContext from "../../Misc/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  DownOutlined,
-  SmileOutlined,
-  QuestionCircleOutlined,
-  LockOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import {
-  Space,
-  Input,
-  Modal,
-  Button,
-  Select,
-  Drawer,
-  Form,
-  Checkbox,
-} from "antd";
+import { useNavigate } from "react-router-dom";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Input, Modal, Button, Select, Drawer, Form, Checkbox } from "antd";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { db, auth } from "../../Misc/Firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import MainPage from "../MainPage/MainPage";
-import { set } from "firebase/database";
 import { message } from "antd";
+import { AuthData } from "../../Misc/AuthContext";
 
 export default function LoginPage() {
   const authContext = React.useContext(AuthContext);
@@ -36,7 +20,7 @@ export default function LoginPage() {
       "authContext is undefined, please ensure it is provided via AuthContext.Provider"
     );
   }
-  const { authData, setAuthData } = authContext;
+  const { setAuthData } = authContext;
   const [showSignUp, setShowSignUp] = React.useState<boolean>(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -138,19 +122,21 @@ export default function LoginPage() {
         });
       }
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        Modal.error({
-          title: "Ошибка",
-          content: "Пользователь с такой электронной почтой уже существует",
-          styles: {
-            mask: {
-              backdropFilter: "blur(10px)",
+      if (error && typeof error === "object" && "code" in error) {
+        if (error.code === "auth/email-already-in-use") {
+          Modal.error({
+            title: "Ошибка",
+            content: "Пользователь с такой электронной почтой уже существует",
+            styles: {
+              mask: {
+                backdropFilter: "blur(10px)",
+              },
             },
-          },
-          onOk: () => {
-            setShowSignUp(false);
-          },
-        });
+            onOk: () => {
+              setShowSignUp(false);
+            },
+          });
+        }
       }
       console.log(error);
     }
@@ -170,7 +156,7 @@ export default function LoginPage() {
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
           console.log("User data:", userDocSnap.data());
-          setAuthData(userDocSnap.data());
+          setAuthData(userDocSnap.data() as AuthData);
           if (values.remember) {
             localStorage.setItem("userData", JSON.stringify(values));
           }
@@ -186,28 +172,30 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      if (error.code === "auth/invalid-login-credentials") {
-        Modal.error({
-          title: "Ошибка",
-          content: "Проверьте правильность введенных данных",
-          styles: {
-            mask: {
-              backdropFilter: "blur(10px)",
+      if (error && typeof error === "object" && "code" in error) {
+        if (error.code === "auth/invalid-login-credentials") {
+          Modal.error({
+            title: "Ошибка",
+            content: "Проверьте правильность введенных данных",
+            styles: {
+              mask: {
+                backdropFilter: "blur(10px)",
+              },
             },
-          },
-        });
-        console.log(error);
-      } else {
-        Modal.error({
-          title: "Ошибка",
-          content: "Что-то пошло не так",
-          styles: {
-            mask: {
-              backdropFilter: "blur(10px)",
+          });
+          console.log(error);
+        } else {
+          Modal.error({
+            title: "Ошибка",
+            content: "Что-то пошло не так",
+            styles: {
+              mask: {
+                backdropFilter: "blur(10px)",
+              },
             },
-          },
-        });
-        console.log(error);
+          });
+          console.log(error);
+        }
       }
     }
   };
