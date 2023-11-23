@@ -1,0 +1,42 @@
+.buttons--container {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1vw 3vh 2vw;
+  height: 84vh;
+}
+
+.buttons--container a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 17vw;
+  height: 7vh;
+  border-radius: 2vw;
+  margin-bottom: 1vh;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1.5vw;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-decoration: none;
+}
+
+.button--active {
+  background: #8692a6 !important;
+  color: #fff !important;
+}
+
+.exit--button--container {
+  display: flex;
+  flex: 2;
+  align-items: end;
+}
+
+.exit--button--container button {
+  margin: 0;
+}
+
+button text {
+  color: #696f79;
+}

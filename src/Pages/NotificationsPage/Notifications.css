@@ -1,0 +1,41 @@
+.telegram--support--container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(249, 249, 249);
+  border-radius: 30px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  width: 50%;
+}
+
+.support--page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.support--page img {
+  width: 100%;
+  height: auto;
+}
+
+.support--page--title {
+  margin-bottom: 0.6vh;
+  font-size: 30px;
+}
+
+.telegram--support--text {
+  text-align: center;
+  margin-bottom: 2.5vh;
+}
+
+.tg--icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.tg--icon:hover {
+  transform: scale(1.05);
+}

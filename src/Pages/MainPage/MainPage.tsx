@@ -1,0 +1,214 @@
+import UserInfoBottomItem from "./Components/UserInfoBottomItem.tsx";
+import FeaturedItem from "./Components/FeaturedItem.tsx";
+import "./MainPage.css";
+import React, { ReactHTMLElement } from "react";
+import AuthContext from "../../Misc/AuthContext.tsx";
+import { Link } from "react-router-dom";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import { storage, db, auth } from "../../Misc/Firebase.tsx";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { Modal, Spin, Tooltip, notification } from "antd";
+import { useNavigate } from "react-router-dom";
+import TestContext from "../../Misc/TestsContext.tsx";
+import { LoadingOutlined } from "@ant-design/icons";
+import Achievement from "./Components/Achievement.tsx";
+
+export default function MainPage() {
+  const navigate = useNavigate();
+  const { authData, setAuthData } = React.useContext(AuthContext);
+  const [loading, setLoading] = React.useState(true);
+  const { testData } = React.useContext(TestContext);
+  const [api, contextHolder] = notification.useNotification();
+
+  const prevTestDataRef = React.useRef(
+    JSON.parse(localStorage.getItem("testData") || "[]")
+  );
+
+  React.useEffect(() => {
+    if (
+      testData &&
+      JSON.stringify(testData) !== JSON.stringify(prevTestDataRef.current)
+    ) {
+      if (testData.length > prevTestDataRef.current.length) {
+        if (testData[testData.length - 1].visible === true) {
+          api.success({
+            message: "Новый тест был добавлен!",
+            description: `Новый тест "${
+              testData[testData.length - 1].name
+            }" был добавлен.`,
+          });
+        }
+      }
+      prevTestDataRef.current = testData;
+      localStorage.setItem("testData", JSON.stringify(testData));
+    }
+  }, [testData, api]);
+  const handleUpload = async (file: File, userId: string) => {
+    const storageRef = ref(storage, "profilePictures/" + userId);
+
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + progress + "% done");
+      },
+      (error) => {
+        console.error(error);
+      },
+      async () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          setAuthData((prev) => ({ ...prev, profilePicUrl: downloadURL }));
+          console.log(authData);
+          await setDoc(doc(db, "users", userId), {
+            ...authData,
+            profilePicUrl: downloadURL,
+          });
+          console.log("File available at", downloadURL);
+        });
+      }
+    );
+  };
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleUpload(file, authData.uid);
+    }
+  };
+
+  const testsItems = testData.slice(-4).map((test: any) => {
+    if (test.visible === false) {
+      return null;
+    } else {
+      return (
+        <Link key={test.id} to={"/tests/" + test.id}>
+          <FeaturedItem
+            title={test.name}
+            image={"/src/assets/CategoryPictures/" + test.category + ".jpeg"}
+          />
+        </Link>
+      );
+    }
+  });
+
+  const achievementsItems = authData.achievements.map((achievement: any) => {
+    let image;
+    switch (achievement.name) {
+      case "Первый вход":
+        image = "/src/assets/achievements/1.png";
+        break;
+      case "Первый тест":
+        image = "/src/assets/achievements/2.png";
+        break;
+      case "Безупречно!":
+        image = "/src/assets/achievements/3.png";
+        break;
+      case "Самый быстрый":
+        image = "/src/assets/achievements/4.png";
+        break;
+      case "Тестер":
+        image = "/src/assets/achievements/5.png";
+        break;
+      case "Супер тестер":
+        image = "/src/assets/achievements/6.png";
+        break;
+    }
+    return (
+      <Achievement
+        key={achievement.name}
+        name={achievement.name}
+        description={achievement.description}
+        locked={achievement.locked}
+        img={image}
+      />
+    );
+  });
+
+  return (
+    <>
+      {contextHolder}
+      <div className={"right--body--section"}>
+        <div className={"right--body--section--top"}>
+          <div className={"info--body--section"}>
+            <div className={"info--body--left--section"}>
+              <div className={"user--logo--container"}>
+                <Spin
+                  spinning={loading}
+                  indicator={<LoadingOutlined style={{ fontSize: 30 }} />}
+                >
+                  <label htmlFor="file--input">
+                    <Tooltip
+                      title={"Нажмите, чтобы изменить фото"}
+                      placement={"top"}
+                    >
+                      <img
+                        className={"user--info--logo"}
+                        src={authData.profilePicUrl}
+                        alt={"user--logo"}
+                        onLoad={() => {
+                          setLoading(false);
+                        }}
+                      />
+                    </Tooltip>
+                  </label>
+                </Spin>
+              </div>
+            </div>
+            <input
+              id={"file--input"}
+              type={"file"}
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+            <div className={"info--body--right--section"}>
+              <div className={"user--info--top"}>
+                <h1 className={"user--name--body"}>
+                  {authData.firstName + " " + authData.lastName}
+                </h1>
+                <h3 className={"user--group--body"}>{authData.group}</h3>
+              </div>
+              <div className={"user--info--bottom"}>
+                <UserInfoBottomItem
+                  title={"Тестов пройдено"}
+                  count={authData.stats.testsPassed}
+                />
+                <UserInfoBottomItem
+                  title={"Правильных ответов"}
+                  count={authData.stats.correctAnswers}
+                />
+                <UserInfoBottomItem
+                  title={"Самый быстрый тест"}
+                  count={authData.stats.fastestTest}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={"right--body--section--bottom"}>
+          <div className={"achievements--body--section"}>
+            <h1 className={"achievements--body--section--title"}>Достижения</h1>
+            <div className={"achievements--body--section--container"}>
+              {achievementsItems}
+            </div>
+          </div>
+          <div className={"featured--body--section"}>
+            <div className={"featured--body--top"}>
+              <h1 className={"featured--body--title"}>Избранная категория</h1>
+              <Link to={"/tests"} className={"featured--body--showall"}>
+                Показать всё
+              </Link>
+            </div>
+            <div className={"featured--body--container"}>{testsItems}</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

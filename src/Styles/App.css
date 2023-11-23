@@ -1,0 +1,108 @@
+h1 {
+  margin: 0;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 2vw;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+}
+
+h3 {
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1.6vw;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin: 0;
+}
+
+p {
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1.4vw;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.App {
+  background: #fbf9f9;
+  flex-shrink: 0;
+}
+
+.body--container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.right--body--section {
+  box-shadow: 0px 15px 40px 5px #ededed;
+}
+
+button {
+  border-width: 0;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.6s ease;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.body--container {
+  display: flex;
+  justify-content: space-between;
+}
+
+a {
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+button:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+a:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+input {
+  margin-right: 0 !important;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.6s ease;
+}
+
+.ant-input-affix-wrapper:hover {
+  cursor: pointer;
+  transform: scale(1.01);
+}
+
+select {
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:hover {
+  cursor: pointer;
+  transform: scale(1.01);
+  box-shadow: 0px 25px 40px 5px #ededed;
+}
+
+.mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.mobile--title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #696f79;
+  margin-bottom: 1rem;
+}

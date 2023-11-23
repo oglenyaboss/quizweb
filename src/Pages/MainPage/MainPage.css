@@ -1,0 +1,226 @@
+.achievements--body--section h1 {
+  margin: 0 0 1.7vh 0;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.coming--soon {
+  margin: 0 !important;
+  color: white !important;
+}
+
+.achievements--body--section--container {
+  width: 33vw;
+  height: 35vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  border-radius: 2vw;
+  opacity: 0.5;
+  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+}
+
+.featured--body--title {
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1.7vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin: 0 0 1.7vh 0;
+}
+
+.featured--body--top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.featured--body--showall {
+  margin: 0;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1vw;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.featured--body--container {
+  display: grid;
+  gap: 1.7vw;
+  grid-template-columns: repeat(2, 1fr); /* 2 столбца с равными ширинами */
+}
+.featured--item--image {
+  width: 16vw;
+  height: 16vh;
+  flex-shrink: 0;
+  border-radius: 2vw;
+  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+}
+.featured--item {
+  position: relative;
+}
+
+.featured--item--title {
+  position: absolute; /* Устанавливаем текст в абсолютное положение внутри родительского контейнера */
+  bottom: 0; /* Располагаем текст вверху */
+  left: 0; /* Располагаем текст слева */
+  padding-left: 1.4vw;
+  padding-bottom: 1.4vh;
+  width: 100%; /* Делаем блок текста шириной 100% родительского контейнера */
+  color: #fff;
+  font-family: Poppins, sans-serif;
+  font-size: 1.4vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.featured--item--title p {
+  margin: 0; /* Убираем отступы абзацев */
+}
+.user--info--logo {
+  width: auto;
+  height: 25vh;
+}
+
+.user--logo--container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 22vw;
+  height: 25vh;
+  overflow: hidden;
+}
+
+.info--body--section {
+  display: flex;
+}
+
+.info--body--left--section {
+  display: flex;
+  align-items: end;
+  margin-right: 3vw;
+  border-radius: 30px;
+  box-shadow: 0px 15px 40px 5px #ededed;
+}
+
+.info--body--right--section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.user--info--bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.user--name--body {
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 2.3vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin: 0;
+}
+
+.user--group--body {
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1.4vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin: 0;
+}
+
+.right--body--section {
+  border-radius: 2vw;
+  background: #fff;
+  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  height: 84vh;
+  width: 75vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.right--body--section--top {
+  margin: 6vh 3vw 0 3vw;
+}
+
+.right--body--section {
+  margin: 0 2.4vw 3vh 0;
+}
+
+.right--body--section--bottom {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 3vw 4vh 3vw;
+}
+.user--info--stats {
+  display: flex;
+  height: fit-content;
+  margin: 0 0.6vw 0 0;
+}
+
+.user--info--stats--left {
+  margin-right: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 5vw;
+  height: 5vw;
+  flex-shrink: 0;
+  border-radius: 1vw;
+  background: #fff;
+  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+}
+
+.user--info--stats--img {
+  width: 3vw;
+  height: 3vw;
+}
+
+.user--info--stats--count {
+  margin: 0;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 2vw;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.user--info--stats--text {
+  margin: 0;
+  color: #696f79;
+  font-family: Poppins, sans-serif;
+  font-size: 1vw;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.ant-badge {
+  position: absolute;
+  padding-right: 1.5vw;
+  right: 0;
+}
+
+.achievement--name {
+  text-align: center;
+  font-size: 1vw;
+}
+
+.achievement--img {
+  width: 7vw;
+}
