@@ -84,11 +84,13 @@
   margin: 0; /* Убираем отступы абзацев */
 }
 .user--info--logo {
-  width: auto;
-  height: 25vh;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .user--logo--container {
+  border-radius: 30px;
   display: flex;
   justify-content: center;
   align-items: center;

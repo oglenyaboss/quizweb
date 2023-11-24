@@ -4,9 +4,14 @@ import AuthContext from "../../Misc/AuthContext.tsx";
 import React from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import { Input } from "antd";
+import defaultProfilePic from "../../assets/default-profile.png";
 
 export default function Header() {
   const { authData } = React.useContext(AuthContext);
+  const profilePic =
+    authData.profilePicUrl !== "/src/assets/default-profile.png"
+      ? authData.profilePicUrl
+      : defaultProfilePic;
 
   return (
     <>
@@ -26,11 +31,7 @@ export default function Header() {
           Тест❗
         </Link>
         <div className={"user--info"}>
-          <img
-            className={"user--logo"}
-            src={authData.profilePicUrl}
-            alt={"user--logo"}
-          />
+          <img className={"user--logo"} src={profilePic} alt={"user--logo"} />
           <h2 className={"user--name"}>
             {authData.firstName + " " + authData.lastName}
           </h2>

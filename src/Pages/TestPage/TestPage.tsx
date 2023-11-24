@@ -26,16 +26,7 @@ export default function TestPage() {
   const [test, setTest] = React.useState<any>({});
   const [time, setTime] = React.useState(0); // 20 minutes in seconds
   const { authData, setAuthData } = React.useContext(AuthContext);
-  const categoryImage = () => {
-    switch (test.category) {
-      case "Математика📏":
-        return math;
-      case "Правоведение📚":
-        return right;
-      case "Программирование💻":
-        return coding;
-    }
-  };
+  const [imgSrc, setImgSrc] = React.useState<any>("");
 
   React.useEffect(() => {
     if (testState.isFinished) {
@@ -208,11 +199,31 @@ export default function TestPage() {
     setValue("");
   };
 
-  const imgSrc = testState.isStarted
-    ? test?.questions?.[currentQuestionIndex]?.picture !== ""
-      ? test?.questions?.[currentQuestionIndex]?.picture
-      : categoryImage()
-    : categoryImage();
+  const categoryImage = () => {
+    switch (test.category) {
+      case "Математика📏":
+        console.log("math");
+        return math;
+      case "Правоведение📚":
+        return right;
+      case "Программирование💻":
+        return coding;
+    }
+  };
+
+  React.useEffect(() => {
+    let newImgSrc;
+    if (testState.isStarted) {
+      newImgSrc = test?.questions?.[currentQuestionIndex]?.picture
+        ? test?.questions?.[currentQuestionIndex]?.picture
+        : test
+        ? categoryImage()
+        : undefined;
+    } else {
+      newImgSrc = test ? categoryImage() : undefined;
+    }
+    setImgSrc(newImgSrc);
+  }, [testState.isStarted, currentQuestionIndex, test]);
 
   React.useEffect(() => {
     if (categoryImage() === imgSrc) {

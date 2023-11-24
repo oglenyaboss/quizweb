@@ -43,6 +43,7 @@ export default function TestPage() {
     Record<string, FilterValue | null>
   >({});
   const [tourOpen, setTourOpen] = React.useState(false);
+  const [imgSrc, setImgSrc] = React.useState<any>("");
 
   const ref1 = React.useRef<HTMLDivElement>(null);
   const ref2 = React.useRef<HTMLImageElement>(null);
@@ -186,17 +187,25 @@ export default function TestPage() {
     }
   };
 
-  const imgSrc = testState.isStarted
-    ? test?.questions?.[currentQuestionIndex]?.picture !== ""
-      ? test?.questions?.[currentQuestionIndex]?.picture
-      : categoryImage()
-    : categoryImage();
+  React.useEffect(() => {
+    let newImgSrc;
+    if (testState.isStarted) {
+      newImgSrc = test?.questions?.[currentQuestionIndex]?.picture
+        ? test?.questions?.[currentQuestionIndex]?.picture
+        : test
+        ? categoryImage()
+        : undefined;
+    } else {
+      newImgSrc = test ? categoryImage() : undefined;
+    }
+    setImgSrc(newImgSrc);
+  }, [testState.isStarted, currentQuestionIndex, test]);
 
   React.useEffect(() => {
     if (categoryImage() === imgSrc) {
       return;
     }
-    setLoadingImg(true);
+    setLoading(true);
   }, [imgSrc]);
 
   const tourSteps = [

@@ -17,6 +17,7 @@ import ach3 from "../../assets/achievements/3.png";
 import ach4 from "../../assets/achievements/4.png";
 import ach5 from "../../assets/achievements/5.png";
 import ach6 from "../../assets/achievements/6.png";
+import defaultProfilePic from "../../assets/default-profile.png";
 
 export default function MainPage() {
   const { authData, setAuthData } = React.useContext(AuthContext);
@@ -135,6 +136,11 @@ export default function MainPage() {
     );
   });
 
+  const profilePic =
+    authData.profilePicUrl !== "/src/assets/default-profile.png"
+      ? authData.profilePicUrl
+      : defaultProfilePic;
+
   return (
     <>
       {contextHolder}
@@ -154,7 +160,7 @@ export default function MainPage() {
                     >
                       <img
                         className={"user--info--logo"}
-                        src={authData.profilePicUrl}
+                        src={profilePic}
                         alt={"user--logo"}
                         onLoad={() => {
                           setLoading(false);
