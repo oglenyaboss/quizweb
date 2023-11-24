@@ -21,6 +21,9 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "../../Misc/Firebase";
 import { LoadingOutlined } from "@ant-design/icons";
 import type { FilterValue } from "antd/es/table/interface";
+import math from "../../assets/CategoryPictures/Математика📏.jpeg";
+import right from "../../assets/CategoryPictures/right.jpeg";
+import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
 
 export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
@@ -172,14 +175,25 @@ export default function TestPage() {
     }
   };
 
+  const categoryImage = () => {
+    switch (test.category) {
+      case "Математика📏":
+        return math;
+      case "Правоведение📚":
+        return right;
+      case "Программирование💻":
+        return coding;
+    }
+  };
+
   const imgSrc = testState.isStarted
     ? test?.questions?.[currentQuestionIndex]?.picture !== ""
       ? test?.questions?.[currentQuestionIndex]?.picture
-      : "/src/assets/CategoryPictures/" + test.category + ".jpeg"
-    : "/src/assets/CategoryPictures/" + test.category + ".jpeg";
+      : categoryImage()
+    : categoryImage();
 
   React.useEffect(() => {
-    if (imgSrc === "/src/assets/CategoryPictures/" + test.category + ".jpeg") {
+    if (categoryImage() === imgSrc) {
       return;
     }
     setLoadingImg(true);

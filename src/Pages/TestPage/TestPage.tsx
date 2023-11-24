@@ -6,6 +6,9 @@ import TestContext from "../../Misc/TestsContext";
 import AuthContext from "../../Misc/AuthContext";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useTransition, animated } from "react-spring";
+import math from "../../assets/CategoryPictures/Математика📏.jpeg";
+import right from "../../assets/CategoryPictures/right.jpeg";
+import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
 
 export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
@@ -23,6 +26,16 @@ export default function TestPage() {
   const [test, setTest] = React.useState<any>({});
   const [time, setTime] = React.useState(0); // 20 minutes in seconds
   const { authData, setAuthData } = React.useContext(AuthContext);
+  const categoryImage = () => {
+    switch (test.category) {
+      case "Математика📏":
+        return math;
+      case "Правоведение📚":
+        return right;
+      case "Программирование💻":
+        return coding;
+    }
+  };
 
   React.useEffect(() => {
     if (testState.isFinished) {
@@ -198,8 +211,15 @@ export default function TestPage() {
   const imgSrc = testState.isStarted
     ? test?.questions?.[currentQuestionIndex]?.picture !== ""
       ? test?.questions?.[currentQuestionIndex]?.picture
-      : "/src/assets/CategoryPictures/" + test?.category + ".jpeg"
-    : "/src/assets/CategoryPictures/" + test?.category + ".jpeg";
+      : categoryImage()
+    : categoryImage();
+
+  React.useEffect(() => {
+    if (categoryImage() === imgSrc) {
+      return;
+    }
+    setLoading(true);
+  }, [imgSrc]);
 
   const transitions = useTransition(
     test?.questions?.[currentQuestionIndex]?.question,
@@ -243,13 +263,6 @@ export default function TestPage() {
     leave: { opacity: 0, transform: "translate3d(0,40px,0)" },
     keys: currentQuestionIndex,
   });
-
-  React.useEffect(() => {
-    if (imgSrc === "/src/assets/CategoryPictures/" + test.category + ".jpeg") {
-      return;
-    }
-    setLoading(true);
-  }, [imgSrc]);
 
   return (
     <>
