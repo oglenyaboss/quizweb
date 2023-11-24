@@ -49,8 +49,6 @@ export default function TestsPage() {
   };
 
   const testsItems = testData.map((test: any) => {
-    const image = "/src/assets/CategoryPictures/" + test.category + ".jpeg";
-
     return (
       <Popconfirm
         title="Выберите действие"
@@ -67,7 +65,7 @@ export default function TestsPage() {
         <a>
           <FeaturedItem
             title={test.name}
-            image={image}
+            category={test.category}
             badge={test.id === testId}
           />
         </a>

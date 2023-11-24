@@ -8,9 +8,9 @@ export default function UserInfoBottomItem(props: {
 }) {
   const image = () => {
     switch (props.title) {
-      case "Самый быстрый":
+      case "Самый быстрый тест":
         return fastest;
-      case "Пройдено тестов":
+      case "Тестов пройдено":
         return finished;
       case "Правильных ответов":
         return correct;

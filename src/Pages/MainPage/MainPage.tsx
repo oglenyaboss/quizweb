@@ -17,9 +17,6 @@ import ach3 from "../../assets/achievements/3.png";
 import ach4 from "../../assets/achievements/4.png";
 import ach5 from "../../assets/achievements/5.png";
 import ach6 from "../../assets/achievements/6.png";
-import math from "../../assets/CategoryPictures/Математика📏.jpeg";
-import right from "../../assets/CategoryPictures/Правоведение📚.jpeg";
-import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
 
 export default function MainPage() {
   const { authData, setAuthData } = React.useContext(AuthContext);
@@ -92,15 +89,10 @@ export default function MainPage() {
       return (
         <Link key={test.id} to={"/tests/" + test.id}>
           <FeaturedItem
+            title={test.name}
             name={test.name}
             description={test.description}
-            img={
-              test.category === "Математика"
-                ? math
-                : test.category === "Правоведение"
-                ? right
-                : coding
-            }
+            category={test.category}
             fastest={test.fastest}
             finished={test.finished}
             correct={test.correct}

@@ -16,10 +16,7 @@ export default function TestsPage() {
     } else {
       return (
         <Link key={test.id} to={"/tests/" + test.id}>
-          <FeaturedItem
-            title={test.name}
-            image={"/src/assets/CategoryPictures/" + test.category + ".jpeg"}
-          />
+          <FeaturedItem title={test.name} category={test.category} />
         </Link>
       );
     }
