@@ -1,16 +1,19 @@
+import fastest from "../../../assets/fastest.png";
+import finished from "../../../assets/finished.png";
+import correct from "../../../assets/correct.png";
+
 export default function UserInfoBottomItem(props: {
   title: string;
   count: number;
 }) {
   const image = () => {
-    if (props.title === "Тестов пройдено") {
-      return "/src/assets/finished.png";
-    } else if (props.title === "Правильных ответов") {
-      return "/src/assets/correct.png";
-    } else if (props.title === "Самый быстрый тест") {
-      return "/src/assets/fastest.png";
-    } else {
-      return "";
+    switch (props.title) {
+      case "Самый быстрый":
+        return fastest;
+      case "Пройдено тестов":
+        return finished;
+      case "Правильных ответов":
+        return correct;
     }
   };
   return (

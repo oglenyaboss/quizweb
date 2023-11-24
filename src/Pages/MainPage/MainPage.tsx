@@ -11,6 +11,15 @@ import { Spin, Tooltip, notification } from "antd";
 import TestContext from "../../Misc/TestsContext.tsx";
 import { LoadingOutlined } from "@ant-design/icons";
 import Achievement from "./Components/Achievement.tsx";
+import ach1 from "../../assets/achievements/1.png";
+import ach2 from "../../assets/achievements/2.png";
+import ach3 from "../../assets/achievements/3.png";
+import ach4 from "../../assets/achievements/4.png";
+import ach5 from "../../assets/achievements/5.png";
+import ach6 from "../../assets/achievements/6.png";
+import math from "../../assets/CategoryPictures/Математика📏.jpeg";
+import right from "../../assets/CategoryPictures/Правоведение📚.jpeg";
+import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
 
 export default function MainPage() {
   const { authData, setAuthData } = React.useContext(AuthContext);
@@ -83,8 +92,18 @@ export default function MainPage() {
       return (
         <Link key={test.id} to={"/tests/" + test.id}>
           <FeaturedItem
-            title={test.name}
-            image={"/src/assets/CategoryPictures/" + test.category + ".jpeg"}
+            name={test.name}
+            description={test.description}
+            img={
+              test.category === "Математика"
+                ? math
+                : test.category === "Правоведение"
+                ? right
+                : coding
+            }
+            fastest={test.fastest}
+            finished={test.finished}
+            correct={test.correct}
           />
         </Link>
       );
@@ -95,22 +114,22 @@ export default function MainPage() {
     let image;
     switch (achievement.name) {
       case "Первый вход":
-        image = "/src/assets/achievements/1.png";
+        image = ach1;
         break;
       case "Первый тест":
-        image = "/src/assets/achievements/2.png";
+        image = ach2;
         break;
       case "Безупречно!":
-        image = "/src/assets/achievements/3.png";
+        image = ach3;
         break;
       case "Самый быстрый":
-        image = "/src/assets/achievements/4.png";
+        image = ach4;
         break;
       case "Тестер":
-        image = "/src/assets/achievements/5.png";
+        image = ach5;
         break;
       case "Супер тестер":
-        image = "/src/assets/achievements/6.png";
+        image = ach6;
         break;
     }
     return (

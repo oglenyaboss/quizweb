@@ -12,6 +12,8 @@ import { db, auth } from "../../Misc/Firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { message } from "antd";
 import { AuthData } from "../../Misc/AuthContext";
+import backgroundImage from "../../assets/login--background.png";
+import profilePicture from "../../assets/default-profile.png";
 
 export default function LoginPage() {
   const authContext = React.useContext(AuthContext);
@@ -69,7 +71,7 @@ export default function LoginPage() {
           lastName: values.lastName,
           group: values.group,
           uid: user.uid,
-          profilePicUrl: "/src/assets/default-profile.png",
+          profilePicUrl: profilePicture,
           stats: {
             testsPassed: 0,
             correctAnswers: 0,
@@ -212,7 +214,7 @@ export default function LoginPage() {
         <div className={"login--page--left"}>
           <img
             className={"login--page--left--background"}
-            src="/src/assets/login--background.png"
+            src={backgroundImage}
           />
         </div>
         <div className={"login--page--right"}>
