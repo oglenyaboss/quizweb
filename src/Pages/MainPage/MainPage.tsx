@@ -24,30 +24,36 @@ export default function MainPage() {
   const [loading, setLoading] = React.useState(true);
   const { testData } = React.useContext(TestContext);
   const [api, contextHolder] = notification.useNotification();
-
-  const prevTestDataRef = React.useRef(
-    JSON.parse(localStorage.getItem("testData") || "[]")
-  );
+  const [notifiedTestIds, setNotifiedTestIds] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    if (
-      testData &&
-      JSON.stringify(testData) !== JSON.stringify(prevTestDataRef.current)
-    ) {
-      if (testData.length > prevTestDataRef.current.length) {
-        if (testData[testData.length - 1].visible === true) {
+    const storedIds = localStorage.getItem("notifiedTestIds");
+    if (storedIds) {
+      setNotifiedTestIds(JSON.parse(storedIds));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!loading) {
+      testData.forEach((test) => {
+        if (test.visible === false) {
+          return;
+        }
+        if (!notifiedTestIds.includes(test.id)) {
           api.success({
-            message: "Новый тест был добавлен!",
-            description: `Новый тест "${
-              testData[testData.length - 1].name
-            }" был добавлен.`,
+            message: "New test added",
+            description: `A new test has been added: ${test.name}.`,
+          });
+          setNotifiedTestIds((prevIds) => {
+            const newIds = [...prevIds, test.id];
+            localStorage.setItem("notifiedTestIds", JSON.stringify(newIds));
+            return newIds;
           });
         }
-      }
-      prevTestDataRef.current = testData;
-      localStorage.setItem("testData", JSON.stringify(testData));
+      });
     }
-  }, [testData, api]);
+  }, [testData, api, loading, notifiedTestIds]);
+
   const handleUpload = async (file: File, userId: string) => {
     const storageRef = ref(storage, "profilePictures/" + userId);
 

@@ -58,7 +58,10 @@ export default function TestPage() {
               testsPassed: prevAuthData.stats.testsPassed + 1,
               correctAnswers:
                 prevAuthData.stats.correctAnswers + testState.right,
-              fastestTest: prevAuthData.stats.fastestTest > time ? time : 0,
+              fastestTest:
+                prevAuthData.stats.fastestTest === 0
+                  ? test?.time - time
+                  : Math.min(prevAuthData.stats.fastestTest, test?.time - time),
               wrongAnswers: prevAuthData.stats.wrongAnswers + testState.wrong,
             },
             achievements: prevAuthData.achievements.map((achievement: any) => {

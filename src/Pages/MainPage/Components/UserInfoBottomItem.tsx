@@ -22,7 +22,9 @@ export default function UserInfoBottomItem(props: {
         <img className={"user--info--stats--img"} src={image()} />
       </div>
       <div className={"user--info--stats--right"}>
-        <h1 className={"user--info--stats--count"}>{props.count}</h1>
+        <h1 className={"user--info--stats--count"}>{`${props.count}${
+          props.title === "Самый быстрый тест" ? " сек" : ""
+        }`}</h1>
         <h3 className={"user--info--stats--text"}>{props.title}</h3>
       </div>
     </div>

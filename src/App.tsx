@@ -71,6 +71,9 @@ function App() {
     };
     if (authData.uid) {
       updateFirebase();
+      if (localStorage.getItem("authData")) {
+        localStorage.setItem("authData", JSON.stringify(authData));
+      }
     }
   }, [authData, authData.achievements]);
 
