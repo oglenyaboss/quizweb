@@ -61,14 +61,52 @@ export default function TestPage() {
               fastestTest: prevAuthData.stats.fastestTest > time ? time : 0,
               wrongAnswers: prevAuthData.stats.wrongAnswers + testState.wrong,
             },
-            achievements: [
-              ...prevAuthData.achievements,
-              {
-                name: "Начинающий тестер",
-                description: "Пройти любой тест",
-                locked: false,
-              },
-            ],
+            achievements: prevAuthData.achievements.map((achievement: any) => {
+              if (
+                achievement.name === "Тестер" &&
+                prevAuthData.stats.testsPassed >= 10 &&
+                prevAuthData.stats.testsPassed < 20
+              ) {
+                return {
+                  ...achievement,
+                  locked: false,
+                };
+              } else if (
+                achievement.name === "Супер тестер" &&
+                prevAuthData.stats.testsPassed >= 20 &&
+                prevAuthData.stats.testsPassed < 50
+              ) {
+                return {
+                  ...achievement,
+                  locked: false,
+                };
+              } else if (
+                achievement.name === "Самый быстрый!" &&
+                time < 60 &&
+                time > 0
+              ) {
+                return {
+                  ...achievement,
+                  locked: false,
+                };
+              } else if (
+                achievement.name === "Первый тест" &&
+                prevAuthData.stats.testsPassed === 1
+              ) {
+                return {
+                  ...achievement,
+                  locked: false,
+                };
+              } else if (
+                achievement.name === "Безупречно!" &&
+                testState.wrong === 0
+              ) {
+                return {
+                  ...achievement,
+                  locked: false,
+                };
+              } else return achievement;
+            }),
           }));
           // authData.stats.testsPassed >= 10 && authData.stats.testsPassed < 20;
           // setAuthData((prevAuthData: any) => ({

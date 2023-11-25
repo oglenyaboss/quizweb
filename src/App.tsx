@@ -57,7 +57,6 @@ function App() {
           group: authData.group,
           uid: authData.uid,
           profilePicUrl: authData.profilePicUrl,
-          permissions: authData.permissions,
           stats: {
             testsPassed: authData.stats.testsPassed,
             correctAnswers: authData.stats.correctAnswers,
@@ -67,13 +66,13 @@ function App() {
         });
         console.log(authData + " updated authData");
       } catch (e) {
-        console.error(e);
+        console.log("Error updating Firebase: ", e);
       }
     };
     if (authData.uid) {
       updateFirebase();
     }
-  }, [authData]);
+  }, [authData, authData.achievements]);
 
   React.useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "tests"), (querySnapshot) => {
