@@ -41,8 +41,8 @@ export default function MainPage() {
         }
         if (!notifiedTestIds.includes(test.id)) {
           api.success({
-            message: "New test added",
-            description: `A new test has been added: ${test.name}.`,
+            message: "Новый тест!",
+            description: `Новый тест был добавлен: ${test?.name}.`,
           });
           setNotifiedTestIds((prevIds) => {
             const newIds = [...prevIds, test.id];
