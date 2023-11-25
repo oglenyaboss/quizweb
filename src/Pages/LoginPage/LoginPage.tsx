@@ -72,6 +72,7 @@ export default function LoginPage() {
           group: values.group,
           uid: user.uid,
           profilePicUrl: profilePicture,
+          permissions: "user",
           stats: {
             testsPassed: 0,
             correctAnswers: 0,

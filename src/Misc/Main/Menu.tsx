@@ -48,6 +48,10 @@ export default function Menu() {
             className={({ isActive }) =>
               [isActive ? "button--active" : "button"].join(" ")
             }
+            onClick={() => {
+              localStorage.removeItem("authData");
+              localStorage.removeItem("userData");
+            }}
           >
             🚪 Выйти
           </NavLink>

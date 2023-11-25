@@ -57,6 +57,7 @@ function App() {
           group: authData.group,
           uid: authData.uid,
           profilePicUrl: authData.profilePicUrl,
+          permissions: authData.permissions,
           stats: {
             testsPassed: authData.stats.testsPassed,
             correctAnswers: authData.stats.correctAnswers,
@@ -64,7 +65,8 @@ function App() {
           },
           achievements: authData.achievements,
         });
-        console.log(authData + " updated authData");
+        console.log(authData);
+        console.log("updated authData");
       } catch (e) {
         console.log("Error updating Firebase: ", e);
       }
