@@ -11,12 +11,12 @@ export default function TestsPage() {
   const { testData } = React.useContext(TestContext);
 
   const testsItems = testData.map((test: any) => {
-    if (test.visible === false) {
+    if (test?.visible === false) {
       return null;
     } else {
       return (
-        <Link key={test.id} to={"/tests/" + test.id}>
-          <FeaturedItem title={test.name} category={test.category} />
+        <Link key={test?.id} to={"/tests/" + test?.id}>
+          <FeaturedItem title={test?.name} category={test?.category} />
         </Link>
       );
     }

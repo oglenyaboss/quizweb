@@ -11,15 +11,13 @@ export default function Layout() {
   const { authData } = React.useContext(AuthContext);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   React.useEffect(() => {
-    if (
-      authData.firstName === "" &&
-      authData.lastName === "" &&
-      authData.group === ""
-    ) {
-      setIsModalVisible(true);
+    const authDataFromLocalStorage = localStorage.getItem("authData");
+    if (!authDataFromLocalStorage) {
+      if (authData.uid === "") {
+        setIsModalVisible(true);
+      }
     }
-  }, []);
-
+  });
   React.useEffect(() => {
     if (isModalVisible) {
       Modal.error({

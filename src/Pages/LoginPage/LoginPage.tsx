@@ -161,6 +161,16 @@ export default function LoginPage() {
           setAuthData(userDocSnap.data() as AuthData);
           if (values.remember) {
             localStorage.setItem("userData", JSON.stringify(values));
+            localStorage.setItem(
+              "authData",
+              JSON.stringify(userDocSnap.data())
+            );
+            console.log("Saved to local storage");
+            console.log(localStorage.getItem("userData"));
+          } else {
+            localStorage.removeItem("userData");
+            localStorage.removeItem("authData");
+            console.log("Removed from local storage");
           }
           messageApi.open({
             type: "success",

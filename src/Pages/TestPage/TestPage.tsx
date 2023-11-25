@@ -121,10 +121,10 @@ export default function TestPage() {
                 id: authData.uid,
                 rightCount: testState.right,
                 wrongCount: testState.wrong,
-                time: test.time - time,
+                time: test?.time - time,
                 name: authData.firstName + " " + authData.lastName,
                 rightPercentage: Math.floor(
-                  (testState.right / test.questions.length) * 100
+                  (testState.right / test?.questions.length) * 100
                 ),
                 group: authData.group,
               });
@@ -138,7 +138,7 @@ export default function TestPage() {
   }, [testState]);
 
   React.useEffect(() => {
-    setTest(testData.find((test: any) => test.id === id));
+    setTest(testData.find((test: any) => test?.id === id));
   }, [testData, id]);
 
   React.useEffect(() => {
@@ -200,7 +200,7 @@ export default function TestPage() {
   };
 
   const categoryImage = () => {
-    switch (test.category) {
+    switch (test?.category) {
       case "Математика📏":
         console.log("math");
         return math;

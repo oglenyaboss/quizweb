@@ -48,8 +48,6 @@ function App() {
 
   const [testData, setTestData] = React.useState<any>([]);
 
-  const isMobile = window.innerWidth < 768;
-
   React.useEffect(() => {
     const updateFirebase = async () => {
       try {
@@ -112,6 +110,15 @@ function App() {
       updateFirebase.cancel();
     };
   }, [testData]);
+
+  React.useEffect(() => {
+    const authDataFromLocalStorage = localStorage.getItem("authData");
+    if (authDataFromLocalStorage) {
+      setAuthData(JSON.parse(authDataFromLocalStorage));
+    }
+  }, []);
+
+  const isMobile = window.innerWidth < 768;
 
   return isMobile ? (
     <div className="mobile">

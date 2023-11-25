@@ -27,8 +27,7 @@ import coding from "../../assets/CategoryPictures/Программировани
 
 export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
-  const [loading, setLoading] = React.useState(false);
-  const [loadingImg, setLoadingImg] = React.useState(true);
+  const [loadingImg, setLoadingImg] = React.useState(false);
   const { testData, setTestData } = React.useContext(TestContext);
   const [messageApi, contextHolder] = message.useMessage();
   const [testState, setTestState] = React.useState<any>({
@@ -91,7 +90,7 @@ export default function TestPage() {
           setTestData((prevTestData: any) => {
             const newTestData = [...prevTestData];
             const testIndex = newTestData.findIndex(
-              (test: any) => test.id === id
+              (test: any) => test?.id === id
             );
             if (!newTestData[testIndex].users.includes(authData.uid)) {
               console.log("pushing");
@@ -106,11 +105,11 @@ export default function TestPage() {
   }, [testState]);
 
   React.useEffect(() => {
-    setTest(testData.find((test: any) => test.id === id));
+    setTest(testData.find((test: any) => test?.id === id));
   }, [testData, id]);
 
   React.useEffect(() => {
-    setTime(test.time);
+    setTime(test?.time);
   }, [test]);
 
   React.useEffect(() => {
@@ -121,7 +120,7 @@ export default function TestPage() {
         setTime((prevTime: number) => prevTime - 1);
       }, 1000);
     } else {
-      setTime(test.time); // reset the time to the test time
+      setTime(test?.time); // reset the time to the test time
     }
 
     return () => {
@@ -129,7 +128,7 @@ export default function TestPage() {
         clearInterval(timer);
       }
     };
-  }, [testState.isStarted, test.time]);
+  }, [testState.isStarted, test?.time]);
 
   const handleUpload = (file: any, testId: string, questionIndex: number) => {
     const storageRef = ref(
@@ -154,7 +153,7 @@ export default function TestPage() {
           setTestData((prevTestData: any) => {
             const newTestData = [...prevTestData];
             const testIndex = newTestData.findIndex(
-              (test: any) => test.id === id
+              (test: any) => test?.id === id
             );
             newTestData[testIndex].questions[questionIndex].picture =
               downloadURL;
@@ -172,12 +171,12 @@ export default function TestPage() {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleUpload(file, test.id, questionIndex);
+      handleUpload(file, test?.id, questionIndex);
     }
   };
 
   const categoryImage = () => {
-    switch (test.category) {
+    switch (test?.category) {
       case "Математика📏":
         return math;
       case "Правоведение📚":
@@ -202,10 +201,10 @@ export default function TestPage() {
   }, [testState.isStarted, currentQuestionIndex, test]);
 
   React.useEffect(() => {
-    if (categoryImage() === imgSrc) {
+    if (imgSrc === categoryImage()) {
       return;
     }
-    setLoading(true);
+    setLoadingImg(true);
   }, [imgSrc]);
 
   const tourSteps = [
@@ -275,11 +274,10 @@ export default function TestPage() {
             ...prevTestState,
             isStarted: true,
           }));
-          setLoadingImg(true);
           setTestData((prevTestData: any) => {
             const newTestData = [...prevTestData];
             const testIndex = newTestData.findIndex(
-              (test: any) => test.id === id
+              (test: any) => test?.id === id
             );
             newTestData[testIndex].questions.length === 0
               ? newTestData[testIndex].questions.push({
@@ -342,39 +340,21 @@ export default function TestPage() {
   return (
     <>
       {contextHolder}
-      {loading ? (
-        <Spin
-          style={{
-            position: "absolute",
-            top: "0%",
-            left: "0%",
-            width: "100vw",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backdropFilter: "blur(5px)",
-            zIndex: 100,
-          }}
-          indicator={<LoadingOutlined style={{ fontSize: 50 }} spin />}
-        />
-      ) : null}
-
       <div className={"right--body--section"}>
         <div className={"test--page--top--section"}>
           <div className={"test--page--top--section--left"}>
             <h1 className={"test--page--top--section--left--title"}>
               {testState.isStarted ? (
-                test.name
+                test?.name
               ) : (
                 <div ref={ref1}>
                   <Input
-                    value={test.name}
+                    value={test?.name}
                     onChange={(e) => {
                       setTestData((prevTestData: TestData[]) => {
                         const newTestData = [...prevTestData];
                         const testIndex = newTestData.findIndex(
-                          (test: Test) => test.id === id
+                          (test: Test) => test?.id === id
                         );
                         newTestData[testIndex].name = e.target.value;
                         return newTestData;
@@ -443,7 +423,7 @@ export default function TestPage() {
                   className={"test--page--middle--section--right--count--title"}
                 >
                   {`Вопрос ${currentQuestionIndex + 1} из ${
-                    test.questions?.length
+                    test?.questions?.length
                   }`}
                 </h3>
               </div>
@@ -461,12 +441,12 @@ export default function TestPage() {
                         placeholder="Введите вопрос"
                         style={{ width: "30vw" }}
                         maxLength={100}
-                        value={test.questions[currentQuestionIndex]?.question}
+                        value={test?.questions[currentQuestionIndex]?.question}
                         onChange={(e) => {
                           setTestData((prevTestData: any) => {
                             const newTestData = [...prevTestData];
                             const testIndex = newTestData.findIndex(
-                              (test: any) => test.id === id
+                              (test: any) => test?.id === id
                             );
                             newTestData[testIndex].questions[
                               currentQuestionIndex
@@ -484,13 +464,13 @@ export default function TestPage() {
                     <strong>Дата добавления:</strong>{" "}
                     {
                       <DatePicker
-                        defaultValue={test.date}
+                        defaultValue={test?.date}
                         placeholder="Дата"
                         onChange={(dateString) => {
                           setTestData((prevTestData: TestData[]) => {
                             const newTestData = [...prevTestData];
                             const testIndex = newTestData.findIndex(
-                              (test: TestData) => test.id === id
+                              (test: TestData) => test?.id === id
                             );
                             if (dateString !== null) {
                               newTestData[testIndex].date =
@@ -514,7 +494,7 @@ export default function TestPage() {
                           setTestData((prevTestData: any) => {
                             const newTestData = [...prevTestData];
                             const testIndex = newTestData.findIndex(
-                              (test: any) => test.id === id
+                              (test: any) => test?.id === id
                             );
                             newTestData[testIndex].time = value;
                             return newTestData;
@@ -529,7 +509,7 @@ export default function TestPage() {
                     {
                       <div ref={ref6}>
                         <Select
-                          value={test.category}
+                          value={test?.category}
                           style={{ width: 200 }}
                           placeholder="Категория"
                           options={[
@@ -550,7 +530,7 @@ export default function TestPage() {
                             setTestData((prevTestData: any) => {
                               const newTestData = [...prevTestData];
                               const testIndex = newTestData.findIndex(
-                                (test: any) => test.id === id
+                                (test: any) => test?.id === id
                               );
                               newTestData[testIndex].category = value;
                               return newTestData;
@@ -570,7 +550,7 @@ export default function TestPage() {
             <div ref={ref7} className={"test--page--bottom--section--answers"}>
               <Input
                 value={
-                  test.questions?.[currentQuestionIndex]?.answers?.[0].text
+                  test?.questions?.[currentQuestionIndex]?.answers?.[0].text
                 }
                 style={{ width: "30vw" }}
                 placeholder="Введите первый ответ"
@@ -578,7 +558,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions[
                       currentQuestionIndex
@@ -589,7 +569,7 @@ export default function TestPage() {
               />
               <Input
                 value={
-                  test.questions?.[currentQuestionIndex]?.answers?.[1].text
+                  test?.questions?.[currentQuestionIndex]?.answers?.[1].text
                 }
                 style={{ width: "30vw", marginTop: "2vh" }}
                 placeholder="Введите второй ответ"
@@ -597,7 +577,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions[
                       currentQuestionIndex
@@ -608,7 +588,7 @@ export default function TestPage() {
               />
               <Input
                 value={
-                  test.questions?.[currentQuestionIndex]?.answers?.[2].text
+                  test?.questions?.[currentQuestionIndex]?.answers?.[2].text
                 }
                 style={{ width: "30vw", marginTop: "2vh" }}
                 placeholder="Введите третий ответ"
@@ -616,7 +596,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions[
                       currentQuestionIndex
@@ -627,7 +607,7 @@ export default function TestPage() {
               />
               <Input
                 value={
-                  test.questions?.[currentQuestionIndex]?.answers?.[3].text
+                  test?.questions?.[currentQuestionIndex]?.answers?.[3].text
                 }
                 style={{ width: "30vw", marginTop: "2vh" }}
                 placeholder="Введите четвертый ответ"
@@ -635,7 +615,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions[
                       currentQuestionIndex
@@ -649,8 +629,8 @@ export default function TestPage() {
                 placeholder="Выберите правильный ответ"
                 style={{ width: "30vw", marginTop: "2vh" }}
                 options={
-                  test.questions?.[currentQuestionIndex]?.answers
-                    ? test.questions?.[currentQuestionIndex]?.answers.map(
+                  test?.questions?.[currentQuestionIndex]?.answers
+                    ? test?.questions?.[currentQuestionIndex]?.answers.map(
                         (answer: any, index: number) => ({
                           value: index,
                           label: answer.text,
@@ -662,7 +642,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions[
                       currentQuestionIndex
@@ -680,11 +660,13 @@ export default function TestPage() {
             </div>
           ) : (
             <p>
-              {`Этот тест состоит из ${test.questions?.length} вопросов с
+              {`Этот тест состоит из ${test?.questions?.length} вопросов с
               множественным выбором. Чтобы успешно пройти тесты, важно хорошо
               разбираться в темах. Имейте в виду следующее: Отведённое время -
               вам нужно выполнить каждую из ваших попыток за один присест, так
-              как на каждую попытку вам отведено ${test.time / 60} минут. Ответы
+              как на каждую попытку вам отведено ${
+                test?.time / 60
+              } минут. Ответы
               - Вы можете просмотреть свои варианты ответов и сравнить их с
               правильными ответами после вашей последней попытки. Чтобы начать,
               нажмите кнопку "Старт". Когда закончите, нажмите кнопку
@@ -700,22 +682,37 @@ export default function TestPage() {
                 type="primary"
                 size="large"
                 onClick={() => {
-                  setLoading(true);
+                  setLoadingImg(true);
                   Modal.info({
                     title: "Вы действительно ходите выложить тест?",
                     onOk: () => {
-                      setTimeout(() => {
-                        setTestData((prevTestData: any) => {
-                          const newTestData = [...prevTestData];
-                          const testIndex = newTestData.findIndex(
-                            (test: any) => test.id === id
-                          );
-                          newTestData[testIndex].visible = true;
-                          return newTestData;
-                        });
-                        messageApi.success("Тест успешно добавлен");
-                        setLoading(false);
-                      }, 2500);
+                      if (
+                        test?.questions[currentQuestionIndex].answers.every(
+                          (answer: any) => answer.isCorrect === false
+                        )
+                      ) {
+                        messageApi.error("Выберите правильный ответ");
+                      } else if (
+                        test?.questions[currentQuestionIndex].answers.some(
+                          (answer: any) => answer.text === ""
+                        ) ||
+                        test?.questions[currentQuestionIndex].question === ""
+                      ) {
+                        messageApi.error("Заполните все ответы");
+                      } else {
+                        setTimeout(() => {
+                          setTestData((prevTestData: any) => {
+                            const newTestData = [...prevTestData];
+                            const testIndex = newTestData.findIndex(
+                              (test: any) => test?.id === id
+                            );
+                            newTestData[testIndex].visible = true;
+                            return newTestData;
+                          });
+                          messageApi.success("Тест успешно добавлен");
+                          setLoadingImg(false);
+                        }, 2500);
+                      }
                     },
                   });
                 }}
@@ -744,21 +741,21 @@ export default function TestPage() {
                 style={{ marginLeft: "2vw" }}
                 onClick={() => {
                   if (
-                    test.questions[currentQuestionIndex].answers.every(
+                    test?.questions[currentQuestionIndex].answers.every(
                       (answer: any) => answer.isCorrect === false
                     )
                   ) {
                     messageApi.error("Выберите правильный ответ");
                   } else if (
-                    test.questions[currentQuestionIndex].answers.some(
+                    test?.questions[currentQuestionIndex].answers.some(
                       (answer: any) => answer.text === ""
                     ) ||
-                    test.questions[currentQuestionIndex].question === ""
+                    test?.questions[currentQuestionIndex].question === ""
                   ) {
                     messageApi.error("Заполните все ответы");
                   } else if (
                     currentQuestionIndex !==
-                    test.questions.length - 1
+                    test?.questions.length - 1
                   ) {
                     setCurrentQuestionIndex(
                       (prevIndex: number) => prevIndex + 1
@@ -767,7 +764,7 @@ export default function TestPage() {
                     setTestData((prevTestData: any) => {
                       const newTestData = [...prevTestData];
                       const testIndex = newTestData.findIndex(
-                        (test: any) => test.id === id
+                        (test: any) => test?.id === id
                       );
                       newTestData[testIndex].questions.push({
                         question: "",
@@ -873,7 +870,7 @@ export default function TestPage() {
                     content: (
                       <>
                         <Table
-                          dataSource={test.users}
+                          dataSource={test?.users}
                           columns={columns}
                           rowKey="name"
                           style={{ width: "100%" }}
@@ -905,7 +902,7 @@ export default function TestPage() {
                   setTestData((prevTestData: any) => {
                     const newTestData = [...prevTestData];
                     const testIndex = newTestData.findIndex(
-                      (test: any) => test.id === id
+                      (test: any) => test?.id === id
                     );
                     newTestData[testIndex].questions.length === 0
                       ? newTestData[testIndex].questions.push({
