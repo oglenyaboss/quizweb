@@ -16,6 +16,12 @@ import { doc, setDoc, onSnapshot, collection } from "firebase/firestore";
 import AdminTestsPage from "./Pages/AdminTestsPage/AdminTestsPage";
 import AdminTestPage from "./Pages/AdminTestPage/AdminTestPage";
 import { debounce } from "lodash";
+import MobileLoginPage from "./Mobile/Pages/LoginPage/MobileLoginPage";
+import MobileLayout from "./Mobile/Misc/MobileLayout";
+import MobileMainPage from "./Mobile/Pages/MainPage/MobileMainPage";
+import MobileTestsPage from "./Mobile/Pages/TestsPage/MobileTestsPage";
+import MobileTestPage from "./Mobile/Pages/TestPage/MobileTestPage";
+import MobileNotificationPage from "./Mobile/Pages/NotificationsPage/MobileNotificationsPage";
 
 function App() {
   const [authData, setAuthData] = React.useState<{
@@ -124,16 +130,65 @@ function App() {
 
   const isMobile = window.innerWidth < 768;
 
+  React.useEffect(() => {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes("iPhone")) {
+      const rootElement = document.getElementById("root");
+      if (rootElement) {
+        rootElement.style.height = "90vh";
+      }
+    }
+  }, []);
   return isMobile ? (
-    <div className="mobile">
-      <h1 className="mobile--title">Мобильная версия сайта в разработке 😢</h1>
-      <img
-        width="200"
-        height="200"
-        src="https://img.icons8.com/emoji/96/hammer-and-wrench.png"
-        alt="hammer-and-wrench"
-      />
-    </div>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: "#8692a6",
+          colorText: "#8692a6",
+          fontFamily: "Poppins, sans-serif",
+          colorWarning: "#ff4d4f",
+        },
+        components: {
+          Button: {
+            borderRadius: 30,
+            borderRadiusLG: 30,
+          },
+          Radio: {
+            borderRadius: 30,
+            controlHeight: 50,
+            fontSize: 20,
+            radioSize: 30,
+          },
+          Modal: {
+            borderRadius: 30,
+          },
+          Input: {
+            borderRadius: 30,
+            paddingBlock: 10,
+          },
+          Select: {
+            borderRadius: 30,
+          },
+        },
+      }}
+    >
+      <AuthContext.Provider value={{ authData, setAuthData }}>
+        <TestContext.Provider value={{ testData, setTestData }}>
+          <Routes>
+            <Route path="/login" element={<MobileLoginPage />} />
+            <Route path="/" element={<MobileLayout />}>
+              <Route path="/home" element={<MobileMainPage />} />
+              <Route path="/tests" element={<MobileTestsPage />} />
+              <Route path="/tests/:id" element={<MobileTestPage />} />
+              <Route
+                path="/notifications"
+                element={<MobileNotificationPage />}
+              />
+            </Route>
+          </Routes>
+        </TestContext.Provider>
+      </AuthContext.Provider>
+    </ConfigProvider>
   ) : (
     <ConfigProvider
       theme={{

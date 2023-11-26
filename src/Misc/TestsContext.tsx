@@ -18,6 +18,7 @@ type Users = {
 };
 
 export type TestData = {
+  group: string;
   visible: boolean;
   users: Users[];
   name: string;
@@ -29,6 +30,7 @@ export type TestData = {
 };
 
 export interface Test {
+  group: string;
   name: string;
   category: string;
   questions: Question[];
@@ -47,6 +49,7 @@ type TestContextType = {
 const TestContext = React.createContext<TestContextType>({
   testData: [
     {
+      group: "",
       visible: false,
       users: [],
       name: "",

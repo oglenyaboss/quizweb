@@ -5,13 +5,17 @@ import { Link } from "react-router-dom";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import TestContext from "../../Misc/TestsContext";
+import AuthContext from "../../Misc/AuthContext";
 
 export default function TestsPage() {
   const [loading] = React.useState(false);
   const { testData } = React.useContext(TestContext);
+  const { authData } = React.useContext(AuthContext);
 
   const testsItems = testData.map((test: any) => {
     if (test?.visible === false) {
+      return null;
+    } else if (test?.group !== authData.group) {
       return null;
     } else {
       return (

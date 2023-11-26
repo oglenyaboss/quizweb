@@ -106,3 +106,20 @@ select:hover {
   color: #696f79;
   margin-bottom: 1rem;
 }
+
+@media screen and (max-width: 768px) {
+  #root {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .App {
+    height: 95.5%;
+    padding: 5vw 5vw 5vw 5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    justify-content: space-between;
+  }
+}

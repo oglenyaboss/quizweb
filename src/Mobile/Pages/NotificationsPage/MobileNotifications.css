@@ -1,0 +1,9 @@
+@media screen and (max-width: 768px) {
+  .telegram--support--text {
+    font-size: 1rem;
+  }
+  .telegram--support--icon {
+    display: flex;
+    justify-content: center;
+  }
+}

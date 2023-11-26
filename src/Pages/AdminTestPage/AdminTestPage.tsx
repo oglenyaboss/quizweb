@@ -540,6 +540,42 @@ export default function TestPage() {
                       </div>
                     }
                   </p>
+                  <p className="test--page--middle--section--description">
+                    <strong>Группа:</strong>{" "}
+                    {
+                      <div>
+                        <Select
+                          value={test?.group}
+                          style={{ width: 200 }}
+                          placeholder="Группа"
+                          options={[
+                            {
+                              value: "БИН21-01",
+                              label: "БИН21-01",
+                            },
+                            {
+                              value: "БИМ21-01",
+                              label: "БИМ21-01",
+                            },
+                            {
+                              value: "БПА21-01",
+                              label: "БПА21-01",
+                            },
+                          ]}
+                          onChange={(value) => {
+                            setTestData((prevTestData: any) => {
+                              const newTestData = [...prevTestData];
+                              const testIndex = newTestData.findIndex(
+                                (test: any) => test?.id === id
+                              );
+                              newTestData[testIndex].group = value;
+                              return newTestData;
+                            });
+                          }}
+                        />
+                      </div>
+                    }
+                  </p>
                 </>
               )}
             </div>

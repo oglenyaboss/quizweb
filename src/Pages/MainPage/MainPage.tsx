@@ -89,8 +89,10 @@ export default function MainPage() {
     }
   };
 
-  const testsItems = testData.slice(-4).map((test: any) => {
+  const testsItems = testData.slice(0, 4).map((test: any) => {
     if (test.visible === false) {
+      return null;
+    } else if (test?.group !== authData.group) {
       return null;
     } else {
       return (
