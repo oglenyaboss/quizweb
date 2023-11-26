@@ -24,6 +24,7 @@ import type { FilterValue } from "antd/es/table/interface";
 import math from "../../assets/CategoryPictures/Математика📏.jpeg";
 import right from "../../assets/CategoryPictures/right.jpeg";
 import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
+import { useNavigate } from "react-router-dom";
 
 export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
@@ -43,6 +44,7 @@ export default function TestPage() {
   >({});
   const [tourOpen, setTourOpen] = React.useState(false);
   const [imgSrc, setImgSrc] = React.useState<any>("");
+  const navigate = useNavigate();
 
   const ref1 = React.useRef<HTMLDivElement>(null);
   const ref2 = React.useRef<HTMLImageElement>(null);
@@ -337,6 +339,10 @@ export default function TestPage() {
     },
   ];
 
+  if (authData.permissions !== "admin") {
+    navigate("/home");
+    messageApi.error("У вас нет доступа к этой странице");
+  }
   return (
     <>
       {contextHolder}

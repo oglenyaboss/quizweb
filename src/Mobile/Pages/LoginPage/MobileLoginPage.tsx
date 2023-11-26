@@ -292,7 +292,7 @@ export default function LoginPage() {
             </Button>
             <Drawer
               title="Создание нового аккаунта"
-              width={"50vw"}
+              width={"100vw"}
               onClose={closeDrawer}
               open={showSignUp}
               styles={{
