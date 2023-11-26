@@ -1,10 +1,7 @@
 import "./Styles/MobileMenu.css";
 import { NavLink } from "react-router-dom";
-import AuthContext from "../../../Misc/AuthContext.tsx";
-import React from "react";
 
 export default function Menu() {
-  const { authData } = React.useContext(AuthContext);
   return (
     <>
       <div className={"buttons--container"}>
