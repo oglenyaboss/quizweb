@@ -14,6 +14,7 @@ import { message } from "antd";
 import { AuthData } from "../../Misc/AuthContext";
 import backgroundImage from "../../assets/login--background.png";
 import profilePicture from "../../assets/default-profile.png";
+import CryptoJS from "crypto-js";
 
 export default function LoginPage() {
   const authContext = React.useContext(AuthContext);
@@ -30,12 +31,17 @@ export default function LoginPage() {
   const [messageApi, contextHolder] = message.useMessage();
   const [userAuthData, setUserAuthData] = React.useState<any>({});
   const [loading, setLoading] = React.useState<boolean>(true);
+  const secretKey = "idcboutyou";
 
   React.useEffect(() => {
     const user = localStorage.getItem("userData");
     console.log(user);
     if (user) {
-      setUserAuthData(JSON.parse(user));
+      const decrypted = CryptoJS.AES.decrypt(user, secretKey).toString(
+        CryptoJS.enc.Utf8
+      );
+      console.log(decrypted);
+      setUserAuthData(JSON.parse(decrypted));
       console.log(userAuthData);
     }
     setLoading(false);
@@ -161,11 +167,16 @@ export default function LoginPage() {
           console.log("User data:", userDocSnap.data());
           setAuthData(userDocSnap.data() as AuthData);
           if (values.remember) {
-            localStorage.setItem("userData", JSON.stringify(values));
-            localStorage.setItem(
-              "authData",
-              JSON.stringify(userDocSnap.data())
-            );
+            const encrypted = CryptoJS.AES.encrypt(
+              JSON.stringify(values),
+              secretKey
+            ).toString();
+            localStorage.setItem("userData", encrypted);
+            const encryptedAuthData = CryptoJS.AES.encrypt(
+              JSON.stringify(userDocSnap.data()),
+              secretKey
+            ).toString();
+            localStorage.setItem("authData", encryptedAuthData);
             console.log("Saved to local storage");
             console.log(localStorage.getItem("userData"));
           } else {

@@ -22,6 +22,7 @@ import MobileMainPage from "./Mobile/Pages/MainPage/MobileMainPage";
 import MobileTestsPage from "./Mobile/Pages/TestsPage/MobileTestsPage";
 import MobileTestPage from "./Mobile/Pages/TestPage/MobileTestPage";
 import MobileNotificationPage from "./Mobile/Pages/NotificationsPage/MobileNotificationsPage";
+import CryptoJS from "crypto-js";
 
 function App() {
   const [authData, setAuthData] = React.useState<{
@@ -52,6 +53,8 @@ function App() {
     achievements: [],
   });
 
+  const secretKey = "idcboutyou";
+
   const [testData, setTestData] = React.useState<any>([]);
 
   React.useEffect(() => {
@@ -80,7 +83,11 @@ function App() {
     if (authData.uid) {
       updateFirebase();
       if (localStorage.getItem("authData")) {
-        localStorage.setItem("authData", JSON.stringify(authData));
+        const ciphertext = CryptoJS.AES.encrypt(
+          JSON.stringify(authData),
+          secretKey
+        ).toString();
+        localStorage.setItem("authData", ciphertext);
       }
     }
   }, [authData, authData.achievements]);
@@ -124,7 +131,12 @@ function App() {
   React.useEffect(() => {
     const authDataFromLocalStorage = localStorage.getItem("authData");
     if (authDataFromLocalStorage) {
-      setAuthData(JSON.parse(authDataFromLocalStorage));
+      const bytes = CryptoJS.AES.decrypt(
+        authDataFromLocalStorage.toString(),
+        secretKey
+      );
+      const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      setAuthData(decryptedData);
     }
   }, []);
 
