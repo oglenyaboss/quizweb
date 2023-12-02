@@ -31,4 +31,24 @@
     font-weight: 800;
     color: #696f79;
   }
+
+  .ant-modal-body p {
+    font-size: 1rem;
+  }
+
+  .achievements--container {
+    margin: 3vh 0 3vh 0;
+    padding: 3vh 1vw 3vh 1vw;
+    background-color: #ededed;
+    border-radius: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .achievements--container p {
+    font-size: 0.8rem;
+  }
+  .achievement--img {
+    width: 15vw;
+  }
 }

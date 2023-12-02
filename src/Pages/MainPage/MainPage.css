@@ -6,12 +6,6 @@
   font-weight: 700;
   line-height: normal;
 }
-
-.coming--soon {
-  margin: 0 !important;
-  color: white !important;
-}
-
 .achievements--body--section--container {
   width: 33vw;
   height: 35vh;
@@ -19,7 +13,6 @@
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
   border-radius: 2vw;
-  opacity: 0.5;
   box-shadow: 0 1vw 4vh 0.3vw #ededed;
 }
 
@@ -156,7 +149,7 @@
 }
 
 .right--body--section--top {
-  margin: 6vh 3vw 0 3vw;
+  margin: 4vh 3vw 0 3vw;
 }
 
 .right--body--section {

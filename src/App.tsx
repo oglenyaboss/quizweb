@@ -1,6 +1,6 @@
 import React from "react";
 import "./Styles/App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./Misc/Layout";
 import TestPage from "./Pages/TestPage/TestPage";
 import TestsPage from "./Pages/TestsPage/TestsPage";
@@ -12,7 +12,7 @@ import AuthContext from "./Misc/AuthContext";
 import TestContext from "./Misc/TestsContext";
 import { ConfigProvider } from "antd";
 import { db } from "./Misc/Firebase";
-import { doc, setDoc, onSnapshot, collection } from "firebase/firestore";
+import { doc, onSnapshot, collection, updateDoc } from "firebase/firestore";
 import AdminTestsPage from "./Pages/AdminTestsPage/AdminTestsPage";
 import AdminTestPage from "./Pages/AdminTestPage/AdminTestPage";
 import { debounce } from "lodash";
@@ -23,6 +23,7 @@ import MobileTestsPage from "./Mobile/Pages/TestsPage/MobileTestsPage";
 import MobileTestPage from "./Mobile/Pages/TestPage/MobileTestPage";
 import MobileNotificationPage from "./Mobile/Pages/NotificationsPage/MobileNotificationsPage";
 import CryptoJS from "crypto-js";
+import ErrorPage from "./Pages/404/MobileErrorPage";
 
 function App() {
   const [authData, setAuthData] = React.useState<{
@@ -60,7 +61,7 @@ function App() {
   React.useEffect(() => {
     const updateFirebase = async () => {
       try {
-        await setDoc(doc(db, "users", authData.uid), {
+        await updateDoc(doc(db, "users", authData.uid), {
           firstName: authData.firstName,
           lastName: authData.lastName,
           group: authData.group,
@@ -83,11 +84,15 @@ function App() {
     if (authData.uid) {
       updateFirebase();
       if (localStorage.getItem("authData")) {
-        const ciphertext = CryptoJS.AES.encrypt(
-          JSON.stringify(authData),
-          secretKey
-        ).toString();
-        localStorage.setItem("authData", ciphertext);
+        try {
+          const ciphertext = CryptoJS.AES.encrypt(
+            JSON.stringify(authData),
+            secretKey
+          ).toString();
+          localStorage.setItem("authData", ciphertext);
+        } catch (e) {
+          console.log("Error encrypting data: ", e);
+        }
       }
     }
   }, [authData, authData.achievements]);
@@ -112,7 +117,7 @@ function App() {
       try {
         for (const test of testData) {
           if (test.id) {
-            await setDoc(doc(db, "tests", test.id), {
+            await updateDoc(doc(db, "tests", test.id), {
               ...test,
               users: test.users,
             });
@@ -130,13 +135,18 @@ function App() {
 
   React.useEffect(() => {
     const authDataFromLocalStorage = localStorage.getItem("authData");
+    console.log(authDataFromLocalStorage);
     if (authDataFromLocalStorage) {
-      const bytes = CryptoJS.AES.decrypt(
-        authDataFromLocalStorage.toString(),
-        secretKey
-      );
-      const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      setAuthData(decryptedData);
+      try {
+        const bytes = CryptoJS.AES.decrypt(
+          authDataFromLocalStorage.toString(),
+          secretKey
+        );
+        const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        setAuthData(decryptedData);
+      } catch (e) {
+        console.log("Error decrypting data: ", e);
+      }
     }
   }, []);
 
@@ -144,13 +154,14 @@ function App() {
 
   React.useEffect(() => {
     const userAgent = navigator.userAgent;
-    if (userAgent.includes("iPhone")) {
+    if (userAgent.includes("iPhone") && userAgent.includes("Safari")) {
       const rootElement = document.getElementById("root");
       if (rootElement) {
         rootElement.style.height = "90vh";
       }
     }
   }, []);
+
   return isMobile ? (
     <ConfigProvider
       theme={{
@@ -189,6 +200,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<MobileLoginPage />} />
             <Route path="/" element={<MobileLayout />}>
+              <Route index element={<Navigate to={"/home"} />} />
               <Route path="/home" element={<MobileMainPage />} />
               <Route path="/tests" element={<MobileTestsPage />} />
               <Route path="/tests/:id" element={<MobileTestPage />} />
@@ -197,6 +209,7 @@ function App() {
                 element={<MobileNotificationPage />}
               />
             </Route>
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
         </TestContext.Provider>
       </AuthContext.Provider>
@@ -239,6 +252,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<Layout />}>
+              <Route index element={<Navigate to={"/home"} />} />
               <Route path="/tests/:id" element={<TestPage />} />
               <Route path="/tests" element={<TestsPage />} />
               <Route path="/home" element={<MainPage />} />
@@ -247,7 +261,7 @@ function App() {
               <Route path="/admin/tests" element={<AdminTestsPage />} />
               <Route path="/admin/tests/:id" element={<AdminTestPage />} />
             </Route>
-            <Route path="*" element={<h1>404</h1>} />
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
         </TestContext.Provider>
       </AuthContext.Provider>

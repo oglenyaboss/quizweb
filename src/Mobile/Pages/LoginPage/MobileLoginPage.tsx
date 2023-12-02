@@ -34,15 +34,16 @@ export default function LoginPage() {
   const secretKey = "idcboutyou";
 
   React.useEffect(() => {
-    const user = localStorage.getItem("userData");
-    console.log(user);
-    if (user) {
-      const decrypted = CryptoJS.AES.decrypt(user, secretKey).toString(
-        CryptoJS.enc.Utf8
-      );
-      console.log(decrypted);
-      setUserAuthData(JSON.parse(decrypted));
-      console.log(userAuthData);
+    const bytes = localStorage.getItem("userData");
+    if (bytes) {
+      try {
+        const userData = JSON.parse(
+          CryptoJS.AES.decrypt(bytes, secretKey).toString(CryptoJS.enc.Utf8)
+        );
+        setUserAuthData(userData);
+      } catch (error) {
+        console.log(error);
+      }
     }
     setLoading(false);
   }, []);
@@ -168,18 +169,16 @@ export default function LoginPage() {
           console.log("User data:", userDocSnap.data());
           setAuthData(userDocSnap.data() as AuthData);
           if (values.remember) {
-            const encrypted = CryptoJS.AES.encrypt(
-              JSON.stringify(userDocSnap.data()),
+            const ciphertext = CryptoJS.AES.encrypt(
+              JSON.stringify(values),
               secretKey
             ).toString();
-            localStorage.setItem("userData", encrypted);
+            localStorage.setItem("userData", ciphertext);
             const encryptedAuthData = CryptoJS.AES.encrypt(
               JSON.stringify(userDocSnap.data()),
               secretKey
             ).toString();
             localStorage.setItem("authData", encryptedAuthData);
-            console.log("Saved to local storage");
-            console.log(localStorage.getItem("userData"));
           } else {
             localStorage.removeItem("userData");
             localStorage.removeItem("authData");

@@ -567,6 +567,10 @@ export default function TestPage() {
                               value: "БПА21-01",
                               label: "БПА21-01",
                             },
+                            {
+                              value: "СТОМ",
+                              label: "СТОМ",
+                            },
                           ]}
                           onChange={(value) => {
                             setTestData((prevTestData: any) => {

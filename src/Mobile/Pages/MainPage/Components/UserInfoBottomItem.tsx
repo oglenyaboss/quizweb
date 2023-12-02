@@ -1,6 +1,8 @@
-import fastest from "../../../../assets/fastest.png";
-import finished from "../../../../assets/finished.png";
-import correct from "../../../../assets/correct.png";
+import CLOCK from "../../../../assets/Lottie/CLOCK.json";
+import CORRECT from "../../../../assets/Lottie/CORRECT.json";
+import FINISH from "../../../../assets/Lottie/FINISH.json";
+import Lottie from "react-lottie-player";
+import React from "react";
 
 export default function UserInfoBottomItem(props: {
   title: string;
@@ -9,17 +11,28 @@ export default function UserInfoBottomItem(props: {
   const image = () => {
     switch (props.title) {
       case "самый быстрый тест":
-        return fastest;
+        return CLOCK;
       case "тестов пройдено":
-        return finished;
+        return FINISH;
       case "правильных ответов":
-        return correct;
+        return CORRECT;
     }
   };
+  const [firstLottiePlaying, setFirstLottiePlaying] = React.useState(true);
   return (
     <div className={"user--info--stats"}>
       <div className={"user--info--stats--left"}>
-        <img className={"user--info--stats--img"} src={image()} />
+        <Lottie
+          className={"user--info--stats--img"}
+          animationData={image()}
+          play={firstLottiePlaying}
+          onLoopComplete={() => {
+            setFirstLottiePlaying(false);
+          }}
+          onClick={() => {
+            setFirstLottiePlaying(true);
+          }}
+        />
       </div>
       <div className={"user--info--stats--right"}>
         <h1 className={"user--info--stats--count"}>{`${props.count}${

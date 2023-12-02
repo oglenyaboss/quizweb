@@ -81,6 +81,30 @@ input {
   transform: scale(1.01);
 }
 
+.achievement--img {
+  transition: transform 0.3s ease;
+}
+
+.achievement--img:hover {
+  transform: scale(1.1);
+}
+
+.user--logo--container {
+  transition: transform 0.3s ease;
+}
+
+.user--logo--container:hover {
+  transform: scale(1.05);
+}
+
+.user--info--stats--left {
+  transition: transform 0.3s ease;
+}
+
+.user--info--stats--left:hover {
+  transform: scale(1.1);
+}
+
 select {
   transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -105,6 +129,14 @@ select:hover {
   font-weight: 800;
   color: #696f79;
   margin-bottom: 1rem;
+}
+
+.ant-modal-content {
+  border-radius: 30px !important;
+}
+
+.ant-modal-confirm-btns button {
+  border-radius: 30px !important;
 }
 
 @media screen and (max-width: 768px) {

@@ -2,9 +2,14 @@ import "./Styles/Menu.css";
 import { NavLink } from "react-router-dom";
 import AuthContext from "../AuthContext";
 import React from "react";
+import { Modal } from "antd";
+import Lottie from "react-lottie-player";
+import HELLO from "../../assets/Lottie/HELLO.json";
 
 export default function Menu() {
   const { authData } = React.useContext(AuthContext);
+  const [lottiePlaying, setLottiePlaying] = React.useState(true);
+
   return (
     <>
       <div className={"buttons--container"}>
@@ -13,8 +18,28 @@ export default function Menu() {
             [isActive ? "button--active" : "button"].join(" ")
           }
           to="/home"
+          onClick={() => {
+            console.log("asdas");
+            setLottiePlaying(true);
+          }}
+          onMouseEnter={() => {
+            setLottiePlaying(true);
+          }}
         >
-          👋🏻 Что нового
+          <Lottie
+            animationData={HELLO}
+            style={{ width: "2vw", height: "2vw" }}
+            className={"menu--lottie"}
+            onComplete={() => {
+              console.log("complete");
+            }}
+            play={lottiePlaying}
+            onLoopComplete={() => {
+              console.log("loop");
+              setLottiePlaying(false);
+            }}
+          />
+          Что нового
         </NavLink>
         <NavLink
           to="/support"
@@ -43,18 +68,32 @@ export default function Menu() {
           </NavLink>
         ) : null}
         <div className={"exit--button--container"}>
-          <NavLink
-            to="/login"
-            className={({ isActive }) =>
-              [isActive ? "button--active" : "button"].join(" ")
-            }
+          <a
+            className="button"
             onClick={() => {
-              localStorage.removeItem("authData");
-              localStorage.removeItem("userData");
+              Modal.confirm({
+                title: "Вы уверены?",
+                content: "Вы действительно хотите выйти?",
+                okText: "Выйти",
+                cancelText: "Отмена",
+                styles: {
+                  mask: {
+                    backdropFilter: "blur(5px)",
+                  },
+                },
+                okButtonProps: {
+                  danger: true,
+                },
+                onOk: () => {
+                  localStorage.removeItem("authData");
+                  localStorage.removeItem("userData");
+                  window.location.href = "/login";
+                },
+              });
             }}
           >
             🚪 Выйти
-          </NavLink>
+          </a>
         </div>
       </div>
     </>

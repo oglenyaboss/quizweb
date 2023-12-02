@@ -13,7 +13,7 @@ export default function Layout() {
   React.useEffect(() => {
     const authDataFromLocalStorage = localStorage.getItem("authData");
     if (!authDataFromLocalStorage) {
-      if (authData.uid === "") {
+      if (authData?.uid === "") {
         setIsModalVisible(true);
       }
     }

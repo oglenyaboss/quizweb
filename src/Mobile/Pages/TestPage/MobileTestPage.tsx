@@ -432,7 +432,7 @@ export default function TestPage() {
         </div>
         {testState.isStarted && (
           <div className="test--page--top--info--answers">
-            <Radio.Group buttonStyle="outline">
+            <Radio.Group buttonStyle="solid">
               <Space
                 direction="vertical"
                 style={{

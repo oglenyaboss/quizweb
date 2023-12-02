@@ -11,19 +11,28 @@ import {
 import { db, auth } from "../../Misc/Firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { message } from "antd";
-import { AuthData } from "../../Misc/AuthContext";
 import backgroundImage from "../../assets/login--background.png";
 import profilePicture from "../../assets/default-profile.png";
 import CryptoJS from "crypto-js";
+import { AuthData } from "../../Misc/AuthContext";
+import { Quotes } from "../../Misc/Quotes";
+import Vector from "../../assets/Quiz Game Vector.svg";
+import Quote from "../../assets/Quiz Game Community.png";
+
+type LoginStatus =
+  | ""
+  | "validating"
+  | "success"
+  | "error"
+  | "warning"
+  | undefined;
 
 export default function LoginPage() {
-  const authContext = React.useContext(AuthContext);
   if (!AuthContext) {
     throw new Error(
       "authContext is undefined, please ensure it is provided via AuthContext.Provider"
     );
   }
-  const { setAuthData } = authContext;
   const [showSignUp, setShowSignUp] = React.useState<boolean>(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -32,17 +41,24 @@ export default function LoginPage() {
   const [userAuthData, setUserAuthData] = React.useState<any>({});
   const [loading, setLoading] = React.useState<boolean>(true);
   const secretKey = "idcboutyou";
+  const [loginStatus, setLoginStatus] = React.useState<LoginStatus>("");
+  const { setAuthData } = React.useContext(AuthContext);
+  const randomQuote = React.useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * Quotes.length);
+    return Quotes[randomIndex];
+  }, []);
 
   React.useEffect(() => {
-    const user = localStorage.getItem("userData");
-    console.log(user);
-    if (user) {
-      const decrypted = CryptoJS.AES.decrypt(user, secretKey).toString(
-        CryptoJS.enc.Utf8
-      );
-      console.log(decrypted);
-      setUserAuthData(JSON.parse(decrypted));
-      console.log(userAuthData);
+    const bytes = localStorage.getItem("userData");
+    if (bytes) {
+      try {
+        const userData = JSON.parse(
+          CryptoJS.AES.decrypt(bytes, secretKey).toString(CryptoJS.enc.Utf8)
+        );
+        setUserAuthData(userData);
+      } catch (error) {
+        console.log(error);
+      }
     }
     setLoading(false);
   }, []);
@@ -153,6 +169,7 @@ export default function LoginPage() {
 
   const handleLogIn = async (values: any) => {
     setIsLoading(true);
+    setLoginStatus("validating");
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -164,30 +181,34 @@ export default function LoginPage() {
         const userDocRef = doc(db, "users", user.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
-          console.log("User data:", userDocSnap.data());
-          setAuthData(userDocSnap.data() as AuthData);
+          const authData = userDocSnap.data();
+          const userData = {
+            email: values.email,
+            password: values.password,
+            remember: values.remember,
+          };
+          setUserAuthData(userData);
+          setAuthData(authData as AuthData);
           if (values.remember) {
-            const encrypted = CryptoJS.AES.encrypt(
+            const ciphertext = CryptoJS.AES.encrypt(
               JSON.stringify(values),
               secretKey
             ).toString();
-            localStorage.setItem("userData", encrypted);
+            localStorage.setItem("userData", ciphertext);
             const encryptedAuthData = CryptoJS.AES.encrypt(
               JSON.stringify(userDocSnap.data()),
               secretKey
             ).toString();
             localStorage.setItem("authData", encryptedAuthData);
-            console.log("Saved to local storage");
-            console.log(localStorage.getItem("userData"));
           } else {
             localStorage.removeItem("userData");
             localStorage.removeItem("authData");
-            console.log("Removed from local storage");
           }
           messageApi.open({
             type: "success",
             content: "Вы успешно вошли в аккаунт",
           });
+          setLoginStatus("success");
           setTimeout(() => {
             navigate("/home");
           }, 1000);
@@ -196,6 +217,8 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
+      setIsLoading(false);
+      setLoginStatus("error");
       if (error && typeof error === "object" && "code" in error) {
         if (error.code === "auth/invalid-login-credentials") {
           Modal.error({
@@ -234,6 +257,18 @@ export default function LoginPage() {
       {contextHolder}
       <div className={"login--page"}>
         <div className={"login--page--left"}>
+          <div className="login--page--left--profile--container">
+            <img
+              className={"login--page--left--profile--picture--quote"}
+              src={Quote}
+            />
+            <p className={"login--page--left--quote"}>{randomQuote.quote}</p>
+            <p className="login--page--left--author">{randomQuote.author}</p>
+            <img
+              className={"login--page--left--profile--picture"}
+              src={Vector}
+            />
+          </div>
           <img
             className={"login--page--left--background"}
             src={backgroundImage}
@@ -256,6 +291,8 @@ export default function LoginPage() {
               onFinish={handleLogIn}
             >
               <Form.Item
+                hasFeedback
+                validateStatus={loginStatus}
                 name="email"
                 style={{ width: "100%" }}
                 rules={[
@@ -268,18 +305,20 @@ export default function LoginPage() {
               >
                 <Input
                   prefix={<UserOutlined className="site-form-item-icon" />}
-                  placeholder="Email"
+                  placeholder="Почта"
                 />
               </Form.Item>
               <Form.Item
+                hasFeedback
                 name="password"
                 rules={[{ required: true, message: "Введите пароль!" }]}
                 style={{ width: "100%" }}
+                validateStatus={loginStatus}
               >
-                <Input
+                <Input.Password
                   prefix={<LockOutlined className="site-form-item-icon" />}
                   type="password"
-                  placeholder="Password"
+                  placeholder="Пароль"
                 />
               </Form.Item>
               <Form.Item>
@@ -367,6 +406,7 @@ export default function LoginPage() {
                     <Select.Option value="БИН21-01">БИН21-01</Select.Option>
                     <Select.Option value="БИМ21-01">БИМ21-01</Select.Option>
                     <Select.Option value="БПА21-01">БПА21-01</Select.Option>
+                    <Select.Option value="СТОМ">СТОМ</Select.Option>
                   </Select>
                 </Form.Item>
                 <Form.Item

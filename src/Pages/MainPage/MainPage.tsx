@@ -11,12 +11,6 @@ import { Spin, Tooltip, notification } from "antd";
 import TestContext from "../../Misc/TestsContext.tsx";
 import { LoadingOutlined } from "@ant-design/icons";
 import Achievement from "./Components/Achievement.tsx";
-import ach1 from "../../assets/achievements/1.png";
-import ach2 from "../../assets/achievements/2.png";
-import ach3 from "../../assets/achievements/3.png";
-import ach4 from "../../assets/achievements/4.png";
-import ach5 from "../../assets/achievements/5.png";
-import ach6 from "../../assets/achievements/6.png";
 import defaultProfilePic from "../../assets/default-profile.png";
 
 export default function MainPage() {
@@ -112,34 +106,12 @@ export default function MainPage() {
   });
 
   const achievementsItems = authData.achievements.map((achievement: any) => {
-    let image;
-    switch (achievement.name) {
-      case "Первый вход":
-        image = ach1;
-        break;
-      case "Первый тест":
-        image = ach2;
-        break;
-      case "Безупречно!":
-        image = ach3;
-        break;
-      case "Самый быстрый":
-        image = ach4;
-        break;
-      case "Тестер":
-        image = ach5;
-        break;
-      case "Супер тестер":
-        image = ach6;
-        break;
-    }
     return (
       <Achievement
         key={achievement.name}
         name={achievement.name}
         description={achievement.description}
         locked={achievement.locked}
-        img={image}
       />
     );
   });

@@ -430,7 +430,7 @@ export default function TestPage() {
         </div>
         <div className={"test--page--bottom--section"}>
           {testState.isStarted ? (
-            <Radio.Group buttonStyle="outline">
+            <Radio.Group buttonStyle={"solid"}>
               <Space direction="vertical">
                 {answerTransitions((style, item) => (
                   <animated.div style={style}>

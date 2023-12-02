@@ -1,4 +1,4 @@
-import FeaturedItem from "../MainPage/Components/FeaturedItem";
+import FeaturedItem from "../../../Pages/MainPage/Components/FeaturedItem";
 import "./MobileTestsPage.css";
 import React from "react";
 import { Link } from "react-router-dom";

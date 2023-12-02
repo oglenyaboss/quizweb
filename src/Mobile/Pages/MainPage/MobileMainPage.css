@@ -9,11 +9,19 @@
     flex-direction: column;
     height: 60%;
   }
-  .user--logo--main {
+  .logo--main {
     width: 35vw;
     height: 17vh;
     border-radius: 30px;
     box-shadow: 0px 1px 40px 5px #ededed;
+    flex-shrink: 0;
+  }
+
+  .user--logo--main {
+    width: 35vw;
+    height: 17vh;
+    border-radius: 30px;
+    box-shadow: 0 1px 40px 5px #ededed;
     flex-shrink: 0;
   }
   .user--info--main {
@@ -94,8 +102,9 @@
     margin: 0;
   }
 
-  .achievement--img {
-    width: 13vw;
+  .user--info--stats--img {
+    width: 50%;
+    height: 25vw;
   }
 
   .achievement--name {
