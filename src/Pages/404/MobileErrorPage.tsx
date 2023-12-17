@@ -12,7 +12,7 @@ export default function ErrorPage() {
         неверной ссылке.
       </p>
       <Link className="button" to="/home">
-        На главную
+        Вернуться
       </Link>
     </div>
   );

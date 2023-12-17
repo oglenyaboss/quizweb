@@ -10,6 +10,39 @@ export default function Menu() {
   const { authData } = React.useContext(AuthContext);
   const [lottiePlaying, setLottiePlaying] = React.useState(true);
 
+  if (window.innerWidth < 768) {
+    return (
+      <>
+        <div className={"buttons--container"}>
+          <NavLink
+            className={({ isActive }) =>
+              [isActive ? "button--active" : "button"].join(" ")
+            }
+            to="/home"
+          >
+            👋🏻
+          </NavLink>
+          <NavLink
+            to="/notifications"
+            className={({ isActive }) =>
+              [isActive ? "button--active" : "button"].join(" ")
+            }
+          >
+            🔔
+          </NavLink>
+          <NavLink
+            to="/tests"
+            className={({ isActive }) =>
+              [isActive ? "button--active" : "button"].join(" ")
+            }
+          >
+            📝
+          </NavLink>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <div className={"buttons--container"}>
@@ -19,7 +52,6 @@ export default function Menu() {
           }
           to="/home"
           onClick={() => {
-            console.log("asdas");
             setLottiePlaying(true);
           }}
           onMouseEnter={() => {
@@ -76,13 +108,13 @@ export default function Menu() {
                 content: "Вы действительно хотите выйти?",
                 okText: "Выйти",
                 cancelText: "Отмена",
-                styles: {
-                  mask: {
-                    backdropFilter: "blur(5px)",
-                  },
-                },
                 okButtonProps: {
                   danger: true,
+                },
+                styles: {
+                  mask: {
+                    backdropFilter: "blur(10px)",
+                  },
                 },
                 onOk: () => {
                   localStorage.removeItem("authData");

@@ -18,6 +18,9 @@ import { AuthData } from "../../Misc/AuthContext";
 import { Quotes } from "../../Misc/Quotes";
 import Vector from "../../assets/Quiz Game Vector.svg";
 import Quote from "../../assets/Quiz Game Community.png";
+import BrightSound from "../../assets/Sounds/Metal Mallet Ping.mp3";
+import NegativeSound from "../../assets/Sounds/Bright.mp3";
+import { Link } from "react-router-dom";
 
 type LoginStatus =
   | ""
@@ -47,6 +50,8 @@ export default function LoginPage() {
     const randomIndex = Math.floor(Math.random() * Quotes.length);
     return Quotes[randomIndex];
   }, []);
+  const positiveSound = new Audio(BrightSound);
+  const negativeSound = new Audio(NegativeSound);
 
   React.useEffect(() => {
     const bytes = localStorage.getItem("userData");
@@ -79,6 +84,7 @@ export default function LoginPage() {
   const tailFormItemLayout = {};
 
   const handleSignUp = async (values: any) => {
+    setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -88,6 +94,7 @@ export default function LoginPage() {
       const user = userCredential.user;
       if (user) {
         const userDoc = doc(db, "users", user.uid);
+        setLoginStatus(undefined);
         await setDoc(userDoc, {
           firstName: values.firstName,
           lastName: values.lastName,
@@ -100,6 +107,7 @@ export default function LoginPage() {
             correctAnswers: 0,
             fastestTest: 0,
           },
+          timeStamp: Date.now(),
           achievements: [
             {
               name: "Первый вход",
@@ -133,6 +141,8 @@ export default function LoginPage() {
             },
           ],
         });
+        positiveSound.play();
+        setIsLoading(false);
         Modal.success({
           title: "Успешно",
           content: "Вы успешно зарегистрировались",
@@ -144,11 +154,14 @@ export default function LoginPage() {
           onOk: () => {
             setShowSignUp(false);
           },
+          okText: "Отлично!",
         });
       }
     } catch (error) {
       if (error && typeof error === "object" && "code" in error) {
         if (error.code === "auth/email-already-in-use") {
+          setIsLoading(false);
+          negativeSound.play();
           Modal.error({
             title: "Ошибка",
             content: "Пользователь с такой электронной почтой уже существует",
@@ -204,6 +217,7 @@ export default function LoginPage() {
             localStorage.removeItem("userData");
             localStorage.removeItem("authData");
           }
+          positiveSound.play();
           messageApi.open({
             type: "success",
             content: "Вы успешно вошли в аккаунт",
@@ -221,6 +235,7 @@ export default function LoginPage() {
       setLoginStatus("error");
       if (error && typeof error === "object" && "code" in error) {
         if (error.code === "auth/invalid-login-credentials") {
+          negativeSound.play();
           Modal.error({
             title: "Ошибка",
             content: "Проверьте правильность введенных данных",
@@ -229,12 +244,17 @@ export default function LoginPage() {
                 backdropFilter: "blur(10px)",
               },
             },
+            okText: "Я исправлюсь!",
           });
           console.log(error);
         } else {
+          negativeSound.play();
           Modal.error({
             title: "Ошибка",
             content: "Что-то пошло не так",
+            style: {
+              backdropFilter: "blur(10px)",
+            },
             styles: {
               mask: {
                 backdropFilter: "blur(10px)",
@@ -251,6 +271,227 @@ export default function LoginPage() {
   const password: string = userAuthData.password;
 
   console.log(email);
+
+  if (window.innerWidth < 768)
+    return (
+      <>
+        {contextHolder}
+        <div className={"login--page"}>
+          <img src={backgroundImage} className={"login--page--background"} />
+          <div className={"login--page--container"}>
+            <div className={"login--page--right--content"}>
+              <h1 className={"login--page--right--title"}>Войти в аккаунт</h1>
+              <p className={"login--page--right--subtitle"}>
+                Используя логин и пароль
+              </p>
+              <Form
+                name="normal_login"
+                className="login-form"
+                initialValues={{
+                  email: email,
+                  password: password,
+                  remember: true,
+                }}
+                onFinish={handleLogIn}
+              >
+                <Form.Item
+                  name="email"
+                  style={{ width: "100%", maxWidth: "70%" }}
+                  rules={[
+                    {
+                      type: "email",
+                      message: "Вы ввели неверный формат электронной почты!",
+                    },
+                    { required: true, message: "Введите электронную почту!" },
+                  ]}
+                >
+                  <Input
+                    prefix={<UserOutlined className="site-form-item-icon" />}
+                    placeholder="Email"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="password"
+                  rules={[{ required: true, message: "Введите пароль!" }]}
+                  style={{ width: "100%", maxWidth: "70%" }}
+                >
+                  <Input
+                    prefix={<LockOutlined className="site-form-item-icon" />}
+                    type="password"
+                    placeholder="Password"
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox>Запомнить меня?</Checkbox>
+                  </Form.Item>
+                </Form.Item>
+
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="login--page--right--form--button"
+                    loading={isLoading}
+                  >
+                    Войти
+                  </Button>
+                </Form.Item>
+              </Form>
+
+              <Button
+                onClick={showDrawer}
+                className={"login--page--right--form--button--sign-up"}
+              >
+                Зарегистрироваться
+              </Button>
+              <Drawer
+                title="Создание нового аккаунта"
+                width={"100vw"}
+                onClose={closeDrawer}
+                open={showSignUp}
+                styles={{
+                  body: {
+                    paddingBottom: 80,
+                  },
+                }}
+              >
+                <Form
+                  layout="vertical"
+                  {...formItemLayout}
+                  form={form}
+                  name="register"
+                  onFinish={handleSignUp}
+                  scrollToFirstError
+                  style={{ height: "100%" }}
+                >
+                  <Form.Item
+                    name={"firstName"}
+                    label="Имя"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Пожалуйста, введите свое имя",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name={"lastName"}
+                    label="Фамилия"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Пожалуйста, введите свою фамилию",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name={"group"}
+                    label="Группа"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Пожалуйста, выберите свою группу",
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Выберите группу"
+                      style={{ borderRadius: 30 }}
+                    >
+                      <Select.Option value="БИН21-01">БИН21-01</Select.Option>
+                      <Select.Option value="БИМ21-01">БИМ21-01</Select.Option>
+                      <Select.Option value="БПА21-01">БПА21-01</Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    name={"email"}
+                    label="Электронная почта"
+                    rules={[
+                      {
+                        type: "email",
+                        message: "Неверный формат электронной почты",
+                      },
+                      {
+                        required: true,
+                        message: "Пожалуйста, введите свою электронную почту",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name={"password"}
+                    label="Пароль"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Пожалуйста, введите пароль",
+                      },
+                    ]}
+                    hasFeedback
+                  >
+                    <Input.Password />
+                  </Form.Item>
+                  <Form.Item
+                    name={"confirm"}
+                    label="Подтвердите пароль"
+                    dependencies={["password"]}
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: "Пожалуйста, подтвердите пароль",
+                      },
+                      ({ getFieldValue }) => ({
+                        validator(_, value) {
+                          if (!value || getFieldValue("password") === value) {
+                            return Promise.resolve();
+                          }
+                          return Promise.reject(
+                            new Error("Пароли не совпадают")
+                          );
+                        },
+                      }),
+                    ]}
+                  >
+                    <Input.Password />
+                  </Form.Item>
+                  <Form.Item
+                    name="agreement"
+                    valuePropName="checked"
+                    rules={[
+                      {
+                        validator: (_, value) =>
+                          value
+                            ? Promise.resolve()
+                            : Promise.reject(
+                                new Error("Пожалуйста, подтвердите соглашение")
+                              ),
+                      },
+                    ]}
+                    {...tailFormItemLayout}
+                  >
+                    <Checkbox>
+                      Я прочитал <a href="">соглашение</a>
+                    </Checkbox>
+                  </Form.Item>
+                  <Form.Item {...tailFormItemLayout}>
+                    <Button type="primary" htmlType="submit">
+                      Зарегистрироваться
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Drawer>
+            </div>
+          </div>
+        </div>
+      </>
+    );
 
   return (
     <>
@@ -294,7 +535,7 @@ export default function LoginPage() {
                 hasFeedback
                 validateStatus={loginStatus}
                 name="email"
-                style={{ width: "100%" }}
+                style={{ width: "100%", maxWidth: "100vw" }}
                 rules={[
                   {
                     type: "email",
@@ -311,7 +552,10 @@ export default function LoginPage() {
               <Form.Item
                 hasFeedback
                 name="password"
-                rules={[{ required: true, message: "Введите пароль!" }]}
+                rules={[
+                  { required: true, message: "Введите пароль!" },
+                  { min: 6, message: "Пароль должен быть не менее 6 символов" },
+                ]}
                 style={{ width: "100%" }}
                 validateStatus={loginStatus}
               >
@@ -351,6 +595,9 @@ export default function LoginPage() {
               onClose={closeDrawer}
               open={showSignUp}
               styles={{
+                mask: {
+                  backdropFilter: "blur(5px)",
+                },
                 body: {
                   paddingBottom: 80,
                 },
@@ -375,7 +622,7 @@ export default function LoginPage() {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input placeholder="Введите имя" />
                 </Form.Item>
                 <Form.Item
                   name={"lastName"}
@@ -387,7 +634,7 @@ export default function LoginPage() {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input placeholder="Введите фамилию" />
                 </Form.Item>
                 <Form.Item
                   name={"group"}
@@ -423,7 +670,7 @@ export default function LoginPage() {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input placeholder="Введите почту" />
                 </Form.Item>
                 <Form.Item
                   name={"password"}
@@ -433,10 +680,14 @@ export default function LoginPage() {
                       required: true,
                       message: "Пожалуйста, введите пароль",
                     },
+                    {
+                      min: 6,
+                      message: "Пароль должен быть не менее 6 символов",
+                    },
                   ]}
                   hasFeedback
                 >
-                  <Input.Password />
+                  <Input.Password placeholder="Введите пароль" />
                 </Form.Item>
                 <Form.Item
                   name={"confirm"}
@@ -458,7 +709,7 @@ export default function LoginPage() {
                     }),
                   ]}
                 >
-                  <Input.Password />
+                  <Input.Password placeholder="Подтвердите пароль" />
                 </Form.Item>
                 <Form.Item
                   name="agreement"
@@ -476,11 +727,11 @@ export default function LoginPage() {
                   {...tailFormItemLayout}
                 >
                   <Checkbox>
-                    Я прочитал <a href="">соглашение</a>
+                    Я прочитал <Link to={"/userlicense"}>соглашение</Link>
                   </Checkbox>
                 </Form.Item>
                 <Form.Item {...tailFormItemLayout}>
-                  <Button type="primary" htmlType="submit">
+                  <Button type="primary" htmlType="submit" loading={isLoading}>
                     Зарегистрироваться
                   </Button>
                 </Form.Item>

@@ -1,6 +1,6 @@
 import React from "react";
 import "./Styles/App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Layout from "./Misc/Layout";
 import TestPage from "./Pages/TestPage/TestPage";
 import TestsPage from "./Pages/TestsPage/TestsPage";
@@ -10,22 +10,26 @@ import NotificationsPage from "./Pages/NotificationsPage/NotificationsPage";
 import LoginPage from "./Pages/LoginPage/LoginPage";
 import AuthContext from "./Misc/AuthContext";
 import TestContext from "./Misc/TestsContext";
-import { ConfigProvider } from "antd";
-import { db } from "./Misc/Firebase";
-import { doc, onSnapshot, collection, updateDoc } from "firebase/firestore";
+import { ConfigProvider, Modal } from "antd";
+import { auth, db } from "./Misc/Firebase";
+import {
+  doc,
+  onSnapshot,
+  collection,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
 import AdminTestsPage from "./Pages/AdminTestsPage/AdminTestsPage";
 import AdminTestPage from "./Pages/AdminTestPage/AdminTestPage";
 import { debounce } from "lodash";
-import MobileLoginPage from "./Mobile/Pages/LoginPage/MobileLoginPage";
-import MobileLayout from "./Mobile/Misc/MobileLayout";
-import MobileMainPage from "./Mobile/Pages/MainPage/MobileMainPage";
-import MobileTestsPage from "./Mobile/Pages/TestsPage/MobileTestsPage";
-import MobileTestPage from "./Mobile/Pages/TestPage/MobileTestPage";
-import MobileNotificationPage from "./Mobile/Pages/NotificationsPage/MobileNotificationsPage";
 import CryptoJS from "crypto-js";
 import ErrorPage from "./Pages/404/MobileErrorPage";
+import { AuthData } from "./Misc/AuthContext";
+import UserLicense from "./Misc/UserLicense";
+import StateContext from "./Misc/StateContext";
 
 function App() {
+  const navigate = useNavigate();
   const [authData, setAuthData] = React.useState<{
     firstName: string;
     lastName: string;
@@ -39,6 +43,7 @@ function App() {
       fastestTest: number;
     };
     achievements: { name: string; description: string; locked: boolean }[];
+    timeStamp: number;
   }>({
     firstName: "",
     lastName: "",
@@ -52,50 +57,47 @@ function App() {
       fastestTest: 0,
     },
     achievements: [],
+    timeStamp: Date.now(),
   });
 
   const secretKey = "idcboutyou";
 
   const [testData, setTestData] = React.useState<any>([]);
 
+  const [state, setState] = React.useState({
+    primaryColor: "#8692a6",
+    backgroundColor: "#fbf9f9",
+    textColor: "#696f79",
+    buttonColor: "#8692a6",
+    buttonTextColor: "#FFF",
+    secondaryBackgroundColor: "#FFF",
+    shadow: "0 1vw 4vh 0.3vw #ededed",
+  });
+
   React.useEffect(() => {
-    const updateFirebase = async () => {
-      try {
-        await updateDoc(doc(db, "users", authData.uid), {
-          firstName: authData.firstName,
-          lastName: authData.lastName,
-          group: authData.group,
-          uid: authData.uid,
-          profilePicUrl: authData.profilePicUrl,
-          permissions: authData.permissions,
-          stats: {
-            testsPassed: authData.stats.testsPassed,
-            correctAnswers: authData.stats.correctAnswers,
-            fastestTest: authData.stats.fastestTest,
-          },
-          achievements: authData.achievements,
-        });
-        console.log(authData);
-        console.log("updated authData");
-      } catch (e) {
-        console.log("Error updating Firebase: ", e);
-      }
-    };
-    if (authData.uid) {
-      updateFirebase();
-      if (localStorage.getItem("authData")) {
-        try {
-          const ciphertext = CryptoJS.AES.encrypt(
-            JSON.stringify(authData),
-            secretKey
-          ).toString();
-          localStorage.setItem("authData", ciphertext);
-        } catch (e) {
-          console.log("Error encrypting data: ", e);
-        }
-      }
-    }
-  }, [authData, authData.achievements]);
+    document.documentElement.style.setProperty(
+      "--active-bg",
+      state.primaryColor
+    );
+    document.documentElement.style.setProperty(
+      "--background-color",
+      state.backgroundColor
+    );
+    document.documentElement.style.setProperty("--text-color", state.textColor);
+    document.documentElement.style.setProperty(
+      "--secondary-background-color",
+      state.secondaryBackgroundColor
+    );
+    document.documentElement.style.setProperty("--shadow", state.shadow);
+    document.documentElement.style.setProperty(
+      "--button-color",
+      state.buttonColor
+    );
+    document.documentElement.style.setProperty(
+      "--button-text-color",
+      state.buttonTextColor
+    );
+  }, [state]);
 
   React.useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "tests"), (querySnapshot) => {
@@ -134,8 +136,63 @@ function App() {
   }, [testData]);
 
   React.useEffect(() => {
+    console.log(authData);
+    if (authData.uid) {
+      if (localStorage.getItem("authData")) {
+        try {
+          const ciphertext = CryptoJS.AES.encrypt(
+            JSON.stringify({ ...authData }),
+            secretKey
+          ).toString();
+          localStorage.setItem("authData", ciphertext);
+        } catch (e) {
+          console.log("Error encrypting data: ", e);
+        }
+      }
+      const docRef = doc(db, "users", authData.uid);
+      getDoc(docRef)
+        .then((doc) => {
+          if (doc.exists()) {
+            const firebaseData = doc.data();
+            if (firebaseData.timeStamp < authData.timeStamp) {
+              updateDoc(docRef, {
+                ...authData,
+                timestamp: Date.now(),
+              })
+                .then(() => console.log("Document successfully updated!"))
+                .catch((error) =>
+                  console.error("Error updating document: ", error)
+                );
+            } else if (firebaseData.timeStamp > authData.timeStamp) {
+              setAuthData(firebaseData as AuthData);
+            }
+          } else {
+            if (
+              window.location.pathname !== "/userlicense" &&
+              window.location.pathname !== "/login" &&
+              window.location.pathname !== "/404"
+            ) {
+              Modal.error({
+                title: "Ошибка",
+                content: "Пользователь не найден в базе данных.",
+                onOk: () => {
+                  auth.signOut();
+                  navigate("/login");
+                },
+              });
+            }
+          }
+        })
+        .catch((error) => console.error("Error getting document: ", error));
+    }
+  }, [authData]);
+  React.useEffect(() => {
+    const stateFromLocalStorage = localStorage.getItem("state");
+    if (stateFromLocalStorage) {
+      setState(JSON.parse(stateFromLocalStorage));
+      console.log("State loaded from local storage: ", stateFromLocalStorage);
+    }
     const authDataFromLocalStorage = localStorage.getItem("authData");
-    console.log(authDataFromLocalStorage);
     if (authDataFromLocalStorage) {
       try {
         const bytes = CryptoJS.AES.decrypt(
@@ -150,8 +207,6 @@ function App() {
     }
   }, []);
 
-  const isMobile = window.innerWidth < 768;
-
   React.useEffect(() => {
     const userAgent = navigator.userAgent;
     if (userAgent.includes("iPhone") && userAgent.includes("Safari")) {
@@ -162,110 +217,82 @@ function App() {
     }
   }, []);
 
-  return isMobile ? (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#8692a6",
-          colorText: "#8692a6",
-          fontFamily: "Poppins, sans-serif",
-          colorWarning: "#ff4d4f",
-        },
-        components: {
-          Button: {
-            borderRadius: 30,
-            borderRadiusLG: 30,
+  return (
+    <StateContext.Provider value={{ state, setState }}>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: state.primaryColor,
+            colorText: state.primaryColor,
+            fontFamily: "Poppins, sans-serif",
+            colorWarning: "#ff4d4f",
+            colorBgContainer: state.backgroundColor,
+            colorBorder: state.secondaryBackgroundColor,
+            boxShadow: state.shadow,
+            colorPrimaryBg: state.backgroundColor,
+            colorBorderBg: state.secondaryBackgroundColor,
+            colorBgBase: state.backgroundColor,
+            colorTextBase: state.textColor,
+            colorBgTextActive: state.backgroundColor,
           },
-          Radio: {
-            borderRadius: 30,
-            controlHeight: 50,
-            fontSize: 20,
-            radioSize: 30,
+          components: {
+            Skeleton: {
+              borderRadius: 30,
+            },
+            Button: {
+              colorText: state.buttonTextColor,
+              borderRadius: 30,
+              borderRadiusLG: 30,
+            },
+            Switch: {
+              handleBg: state.primaryColor,
+            },
+            Message: {
+              borderRadius: 30,
+            },
+            Radio: {
+              borderRadius: 30,
+              controlHeight: 50,
+              fontSize: 20,
+              radioSize: 30,
+              colorBorder: state.primaryColor,
+            },
+            Modal: {
+              borderRadius: 30,
+            },
+            Input: {
+              borderRadius: 30,
+              paddingBlock: 10,
+              colorText: state.primaryColor,
+              colorTextPlaceholder: state.primaryColor,
+            },
+            Select: {
+              borderRadius: 30,
+            },
           },
-          Modal: {
-            borderRadius: 30,
-          },
-          Input: {
-            borderRadius: 30,
-            paddingBlock: 10,
-          },
-          Select: {
-            borderRadius: 30,
-          },
-        },
-      }}
-    >
-      <AuthContext.Provider value={{ authData, setAuthData }}>
-        <TestContext.Provider value={{ testData, setTestData }}>
-          <Routes>
-            <Route path="/login" element={<MobileLoginPage />} />
-            <Route path="/" element={<MobileLayout />}>
-              <Route index element={<Navigate to={"/home"} />} />
-              <Route path="/home" element={<MobileMainPage />} />
-              <Route path="/tests" element={<MobileTestsPage />} />
-              <Route path="/tests/:id" element={<MobileTestPage />} />
-              <Route
-                path="/notifications"
-                element={<MobileNotificationPage />}
-              />
-            </Route>
-            <Route path="*" element={<ErrorPage />} />
-          </Routes>
-        </TestContext.Provider>
-      </AuthContext.Provider>
-    </ConfigProvider>
-  ) : (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#8692a6",
-          colorText: "#8692a6",
-          fontFamily: "Poppins, sans-serif",
-          colorWarning: "#ff4d4f",
-        },
-        components: {
-          Button: {
-            borderRadius: 30,
-            borderRadiusLG: 30,
-          },
-          Radio: {
-            borderRadius: 30,
-            controlHeight: 50,
-            fontSize: 20,
-            radioSize: 30,
-          },
-          Modal: {
-            borderRadius: 30,
-          },
-          Input: {
-            borderRadius: 30,
-            paddingBlock: 10,
-          },
-          Select: {
-            borderRadius: 30,
-          },
-        },
-      }}
-    >
-      <AuthContext.Provider value={{ authData, setAuthData }}>
-        <TestContext.Provider value={{ testData, setTestData }}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Navigate to={"/home"} />} />
-              <Route path="/tests/:id" element={<TestPage />} />
-              <Route path="/tests" element={<TestsPage />} />
-              <Route path="/home" element={<MainPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/admin/tests" element={<AdminTestsPage />} />
-              <Route path="/admin/tests/:id" element={<AdminTestPage />} />
-            </Route>
-            <Route path="*" element={<ErrorPage />} />
-          </Routes>
-        </TestContext.Provider>
-      </AuthContext.Provider>
-    </ConfigProvider>
+        }}
+      >
+        <AuthContext.Provider value={{ authData, setAuthData }}>
+          <TestContext.Provider value={{ testData, setTestData }}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Navigate to={"/home"} />} />
+                <Route path="/tests/:id" element={<TestPage />} />
+                <Route path="/tests" element={<TestsPage />} />
+                <Route path="/home" element={<MainPage />} />
+                <Route path="/support" element={<SupportPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/admin/tests" element={<AdminTestsPage />} />
+                <Route path="/admin/tests/:id" element={<AdminTestPage />} />
+              </Route>
+              <Route path="*" element={<ErrorPage />} />
+              <Route path="/userlicense" element={<UserLicense />} />
+            </Routes>
+          </TestContext.Provider>
+        </AuthContext.Provider>
+      </ConfigProvider>
+    </StateContext.Provider>
   );
 }
 

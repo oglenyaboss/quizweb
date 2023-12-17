@@ -1,10 +1,11 @@
 import FeaturedItem from "../MainPage/Components/FeaturedItem";
 import "../TestsPage/TestsPage.css";
 import { doc, deleteDoc, collection, addDoc } from "firebase/firestore";
-import { db } from "../../Misc/Firebase";
+import { ref, deleteObject } from "firebase/storage";
+import { db, storage } from "../../Misc/Firebase";
 import React from "react";
-import { Button, Spin, Popconfirm, message } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { Button, Spin, Popconfirm, message, Upload } from "antd";
+import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
 import TestContext from "../../Misc/TestsContext";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../Misc/AuthContext";
@@ -46,6 +47,8 @@ export default function TestsPage() {
   const deleteTest = async (id: string) => {
     try {
       await deleteDoc(doc(db, "tests", id));
+      const storageRef = ref(storage, "testPictures/" + id);
+      await deleteObject(storageRef);
     } catch (e) {
       console.error("Error deleting document: ", e);
     }
@@ -110,11 +113,56 @@ export default function TestsPage() {
           </>
         ) : (
           <div className={"tests--page"}>
-            <h1 className={"tests--page--title"}>Выберите тему🗒️</h1>
-            <p className={"tests--page--subtitle"}>Избранная категория❤️</p>
-            <div className="featured--item--container">{testsItems}</div>
+            <div className="tests--page--top">
+              <h1 className={"tests--page--title"}>Выберите тему🗒️</h1>
+              <p className={"tests--page--subtitle"}>Избранная категория❤️</p>
+              <div className="featured--item--container">{testsItems}</div>
+            </div>
             <div className={"tests--page--buttons"}>
+              <Upload
+                accept=".txt,.json"
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    try {
+                      const json = JSON.parse(e?.target?.result as string);
+                      console.log(json.name);
+                      addTest(
+                        json.name,
+                        json.category,
+                        false,
+                        json.questions,
+                        `${today.getFullYear()}-${String(
+                          today.getMonth() + 1
+                        ).padStart(2, "0")}-${String(today.getDate()).padStart(
+                          2,
+                          "0"
+                        )}`,
+                        json.time
+                      );
+                      message.success("Тест добавлен успешно");
+                      navigate(`/admin/tests/${testId}`);
+                    } catch (error) {
+                      message.error("Неправильный формат файла");
+                      console.log(error);
+                    }
+                  };
+                  reader.readAsText(file);
+                  return false;
+                }}
+              >
+                <Button
+                  type="primary"
+                  style={{ marginRight: 20 }}
+                  size="large"
+                  icon={<UploadOutlined />}
+                >
+                  Загрузить тесты
+                </Button>
+              </Upload>
               <Button
+                type="primary"
                 size="large"
                 onClick={() => {
                   addTest(

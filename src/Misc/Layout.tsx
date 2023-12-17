@@ -31,6 +31,20 @@ export default function Layout() {
       });
     }
   }, [isModalVisible]);
+
+  if (window.innerWidth < 768) {
+    return (
+      <>
+        <div className={"App"}>
+          <Header />
+          <div className="body--container">
+            <Outlet />
+          </div>
+          <Menu />
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <div className={"App"}>

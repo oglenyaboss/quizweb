@@ -1,5 +1,14 @@
 import React from "react";
-import { Button, Modal, Radio, Space, Spin, Tooltip, message } from "antd";
+import {
+  Button,
+  Modal,
+  Radio,
+  Space,
+  Spin,
+  Tooltip,
+  message,
+  Skeleton,
+} from "antd";
 import "../TestPage/TestPage.css";
 import { useParams } from "react-router-dom";
 import TestContext from "../../Misc/TestsContext";
@@ -9,6 +18,10 @@ import { useTransition, animated } from "react-spring";
 import math from "../../assets/CategoryPictures/Математика📏.jpeg";
 import right from "../../assets/CategoryPictures/right.jpeg";
 import coding from "../../assets/CategoryPictures/Программирование💻.jpeg";
+import RightSound from "../../assets/Sounds/Metal Mallet Ping.mp3";
+import NegativeSound from "../../assets/Sounds/Bright.mp3";
+import { Table } from "antd";
+import type { FilterValue } from "antd/es/table/interface";
 
 export default function TestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
@@ -27,11 +40,23 @@ export default function TestPage() {
   const [time, setTime] = React.useState(0); // 20 minutes in seconds
   const { authData, setAuthData } = React.useContext(AuthContext);
   const [imgSrc, setImgSrc] = React.useState<any>("");
+  const [, setFilteredInfo] = React.useState<
+    Record<string, FilterValue | null>
+  >({});
+  const negativeSound = new Audio(NegativeSound);
+  const positiveSound = new Audio(RightSound);
+  const [loadedImages, setLoadedImages] = React.useState<number>(0);
+  const totalImages = 1;
 
   React.useEffect(() => {
     if (testState.isFinished) {
       Modal.success({
         title: "Тест завершён",
+        styles: {
+          mask: {
+            backdropFilter: "blur(10px)",
+          },
+        },
         content: (
           <>
             <p>
@@ -53,6 +78,7 @@ export default function TestPage() {
           setCurrentQuestionIndex(0);
           setAuthData((prevAuthData: any) => ({
             ...prevAuthData,
+            timeStamp: Date.now(),
             stats: {
               ...prevAuthData.stats,
               testsPassed: prevAuthData.stats.testsPassed + 1,
@@ -67,8 +93,7 @@ export default function TestPage() {
             achievements: prevAuthData.achievements.map((achievement: any) => {
               if (
                 achievement.name === "Тестер" &&
-                prevAuthData.stats.testsPassed >= 10 &&
-                prevAuthData.stats.testsPassed < 20
+                prevAuthData.stats.testsPassed >= 10
               ) {
                 return {
                   ...achievement,
@@ -76,17 +101,15 @@ export default function TestPage() {
                 };
               } else if (
                 achievement.name === "Супер тестер" &&
-                prevAuthData.stats.testsPassed >= 20 &&
-                prevAuthData.stats.testsPassed < 50
+                prevAuthData.stats.testsPassed >= 20
               ) {
                 return {
                   ...achievement,
                   locked: false,
                 };
               } else if (
-                achievement.name === "Самый быстрый!" &&
-                time < 60 &&
-                time > 0
+                achievement.name === "Самый быстрый" &&
+                test?.time - time < 60
               ) {
                 return {
                   ...achievement,
@@ -94,7 +117,7 @@ export default function TestPage() {
                 };
               } else if (
                 achievement.name === "Первый тест" &&
-                prevAuthData.stats.testsPassed === 1
+                prevAuthData.stats.testsPassed >= 1
               ) {
                 return {
                   ...achievement,
@@ -111,42 +134,6 @@ export default function TestPage() {
               } else return achievement;
             }),
           }));
-          // authData.stats.testsPassed >= 10 && authData.stats.testsPassed < 20;
-          // setAuthData((prevAuthData: any) => ({
-          //   ...prevAuthData,
-          //   achievements: [
-          //     ...prevAuthData.achievements,
-          //     {
-          //       name: "Тестер",
-          //       description: "Пройти 10 тестов",
-          //       locked: false,
-          //     },
-          //   ],
-          // }));
-          // authData.stats.testsPassed >= 20 && authData.stats.testsPassed < 50;
-          // setAuthData((prevAuthData: any) => ({
-          //   ...prevAuthData,
-          //   achievements: [
-          //     ...prevAuthData.achievements,
-          //     {
-          //       name: "Супер тестер",
-          //       description: "Пройти 20 тестов",
-          //       locked: false,
-          //     },
-          //   ],
-          // }));
-          // time < 60 && time > 0;
-          // setAuthData((prevAuthData: any) => ({
-          //   ...prevAuthData,
-          //   achievements: [
-          //     ...prevAuthData.achievements,
-          //     {
-          //       name: "Самый быстрый!",
-          //       description: "Пройти тест быстрее 1 минуты",
-          //       locked: false,
-          //     },
-          //   ],
-          // }));
           setTestData((prevTestData: any) => {
             const newTestData = [...prevTestData];
             const testIndex = newTestData.findIndex(
@@ -206,6 +193,7 @@ export default function TestPage() {
 
   const handleAnswer = () => {
     if (value === "") {
+      negativeSound.play();
       messageApi.open({
         type: "error",
         content: "Выберите ответ",
@@ -221,6 +209,7 @@ export default function TestPage() {
         ...prevTestState,
         right: prevTestState.right + 1,
       }));
+      positiveSound.play();
       messageApi.open({
         type: "success",
         content: "Правильный ответ",
@@ -231,6 +220,7 @@ export default function TestPage() {
         ...prevTestState,
         wrong: prevTestState.wrong + 1,
       }));
+      negativeSound.play();
       messageApi.open({
         type: "error",
         content: "Неправильный ответ",
@@ -316,38 +306,90 @@ export default function TestPage() {
     keys: currentQuestionIndex,
   });
 
-  return (
-    <>
-      {contextHolder}
-      <div className={"right--body--section"}>
-        <div className={"test--page--top--section"}>
-          <div className={"test--page--top--section--left"}>
-            <h1 className={"test--page--top--section--left--title"}>
-              {test?.name}
-            </h1>
-            <p className={"test--page--top--section--left--description"}>
-              {testState.isStarted
-                ? "Ответьте на вопросы снизу"
-                : "Прочтите следующие инструкции"}
-            </p>
-          </div>
-          <div className={"test--page--top--section--right--timer"}>
-            <strong>{minutes}:</strong>
-            <div style={{ position: "relative", display: "inline-block" }}>
-              {secondTransitions((style, item) => (
-                <animated.strong style={style}>
-                  {item < 10 ? "0" : ""}
-                  {item}
-                </animated.strong>
-              ))}
+  if (window.innerWidth < 768) {
+    return loadedImages < totalImages ? (
+      <>
+        {contextHolder}
+        <div className="test-page">
+          <div className="test--page--top">
+            <div className="test--page--top--image">
+              <Skeleton.Avatar
+                className="test--image"
+                style={{
+                  width: "80vw",
+                  height: "20vh",
+                  borderRadius: "30px",
+                }}
+                shape="square"
+                active
+              />
+            </div>
+            <div className="test--page--top--info">
+              <div>
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+                <Skeleton.Input
+                  style={{ width: "80vw", height: "2vh", margin: "1vh 0" }}
+                  active
+                />
+              </div>
             </div>
           </div>
+          <div className={"test--page--bottom--section--buttons"}>
+            <Skeleton.Button
+              style={{
+                width: "30vw",
+                height: "3vh",
+                margin: "1vh 0",
+                marginRight: "2vw",
+                borderRadius: "30px",
+              }}
+              active
+            />
+            <Skeleton.Button
+              style={{
+                width: "30vw",
+                height: "3vh",
+                margin: "1vh 0",
+                borderRadius: "30px",
+              }}
+              active
+            />
+          </div>
         </div>
-        <div className={"test--page--middle--section"}>
-          <div className={"test--page--middle--section--left"}>
-            <animated.div
-              className={"test--page--middle--section--left--image"}
-            >
+        <div className="preload">
+          <img
+            src={categoryImage()}
+            onLoad={() => {
+              setLoadedImages(loadedImages + 1);
+            }}
+          />
+        </div>
+      </>
+    ) : (
+      <>
+        {contextHolder}
+        <div className="test-page">
+          <div className="test--page--top">
+            <div className="test--page--top--image">
               <Spin
                 spinning={loading}
                 indicator={<LoadingOutlined style={{ fontSize: 50 }} spin />}
@@ -360,60 +402,76 @@ export default function TestPage() {
                   }}
                 />
               </Spin>
-            </animated.div>
-          </div>
-          <div className={"test--page--middle--section--right"}>
-            {testState.isStarted ? (
-              <div className={"test--page--middle--section--right--count"}>
-                <h3
-                  style={{
-                    marginRight: "0.5vw",
-                  }}
-                >
-                  Вопрос
-                </h3>
-                <div
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    alignItems: "center",
-                    width: "1vw",
-                    height: "5px",
-                    marginRight: "0.5vw",
-                  }}
-                >
-                  {questionCountTransitions((style, item) => (
-                    <animated.h3
-                      style={{
-                        ...style,
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                      }}
-                    >
-                      {item + 1}
-                    </animated.h3>
-                  ))}
-                </div>
-                <h3>{`из ${test?.questions?.length}`}</h3>
-              </div>
-            ) : null}
-            <div
-              className={
-                "test--page--middle--section--right--question--container"
-              }
-            >
+            </div>
+            <div className="test--page--top--info">
               {testState.isStarted ? (
-                transitions((style, item) => (
-                  <animated.p
-                    style={style}
-                    className={"test--page--middle--section--right--question"}
-                  >
-                    {item}
-                  </animated.p>
-                ))
+                <>
+                  <div className="test--page--top--info--top">
+                    <div
+                      className={"test--page--middle--section--right--count"}
+                    >
+                      <h3
+                        style={{
+                          marginRight: "0.5vw",
+                        }}
+                      >
+                        Вопрос
+                      </h3>
+                      <div
+                        style={{
+                          position: "relative",
+                          display: "inline-block",
+                          alignItems: "center",
+                          width: "1vw",
+                          height: "5px",
+                          marginRight: "2vw",
+                        }}
+                      >
+                        {questionCountTransitions((style, item) => (
+                          <animated.h3
+                            style={{
+                              ...style,
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                            }}
+                          >
+                            {item + 1}
+                          </animated.h3>
+                        ))}
+                      </div>
+                      <h3>{`из ${test?.questions?.length}`}</h3>
+                    </div>
+                    <div className={"test--page--top--section--right--timer"}>
+                      <strong>{minutes}:</strong>
+                      <div
+                        style={{
+                          position: "relative",
+                          display: "inline-block",
+                        }}
+                      >
+                        {secondTransitions((style, item) => (
+                          <animated.strong style={style}>
+                            {item < 10 ? "0" : ""}
+                            {item}
+                          </animated.strong>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="test--page--top--info--question">
+                    {transitions((style, item) => (
+                      <animated.h1 className={"question"} style={style}>
+                        {item}
+                      </animated.h1>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <>
+                  <h1 className="test--page--middle--section--right--question--title">
+                    {test?.name}
+                  </h1>
                   <p className="test--page--middle--section--description">
                     <strong>Дата добавления:</strong> {test?.date}
                   </p>
@@ -423,30 +481,582 @@ export default function TestPage() {
                   <p className="test--page--middle--section--description">
                     <strong>Категория:</strong> {test?.category}
                   </p>
+                  <p className="test--page--middle--section--description">
+                    <strong>Количество вопросов:</strong>{" "}
+                    {test?.questions?.length}
+                  </p>
+                  <p className="test--page--middle--section--description">
+                    <strong>Время на выполнение:</strong> {test?.time / 60}{" "}
+                    минут
+                  </p>
                 </>
               )}
             </div>
           </div>
+          {testState.isStarted && (
+            <div className="test--page--top--info--answers">
+              <Radio.Group buttonStyle="solid">
+                <Space
+                  direction="vertical"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: "10px",
+                    width: "82vw",
+                  }}
+                >
+                  {answerTransitions((style, item) => {
+                    let fontSize;
+                    if (item.text.length > 50) {
+                      fontSize = "0.8rem";
+                    } else if (item.text.length > 30) {
+                      fontSize = "0.9rem";
+                    } else {
+                      fontSize = "1rem";
+                    }
+                    return (
+                      <animated.div style={style}>
+                        <Radio.Button
+                          onChange={() => setValue(item.text)}
+                          value={item.text}
+                          style={{
+                            fontSize: fontSize,
+                            width: "40vw",
+                            height: "10vh",
+                            borderRadius: "30px",
+                          }}
+                        >
+                          {item.text}
+                        </Radio.Button>
+                      </animated.div>
+                    );
+                  })}
+                </Space>
+              </Radio.Group>
+            </div>
+          )}
+
+          <div className={"test--page--bottom--section--buttons"}>
+            {testState.isStarted ? (
+              currentQuestionIndex === test?.questions.length - 1 ? (
+                <Button
+                  className={"test--page--button"}
+                  type="primary"
+                  onClick={() => {
+                    handleAnswer();
+                    setTestState((prevTestState: any) => ({
+                      ...prevTestState,
+                      isFinished: true,
+                      isStarted: false,
+                    }));
+                  }}
+                >
+                  Завершить
+                </Button>
+              ) : (
+                <Button
+                  className={"test--page--button"}
+                  type="primary"
+                  onClick={() => {
+                    handleAnswer();
+                  }}
+                >
+                  Следующий вопрос
+                </Button>
+              )
+            ) : (
+              <>
+                <Tooltip
+                  title={
+                    !test?.users?.some((user: any) => user.id === authData.uid)
+                      ? "Вы ещё не прошли этот тест"
+                      : "Показать результаты"
+                  }
+                  placement={"top"}
+                >
+                  {authData.permissions === "admin" ? (
+                    <Button
+                      className="test--page--button"
+                      type="primary"
+                      style={{ marginLeft: "2vw", marginRight: "2vw" }}
+                      onClick={() => {
+                        const columns = [
+                          {
+                            title: "ФИО ученика",
+                            dataIndex: "name",
+                            key: "name",
+                          },
+
+                          {
+                            title: "% правильных",
+                            dataIndex: "rightPercentage",
+                            key: "rightPercentage",
+                            sorter: (a: any, b: any) =>
+                              a.rightCount - b.rightCount,
+                          },
+                          {
+                            title: "Группа",
+                            dataIndex: "group",
+                            key: "group",
+                            filters: [
+                              {
+                                text: "БИН21-01",
+                                value: "БИН21-01",
+                              },
+                              {
+                                text: "БИМ21-01",
+                                value: "БИМ21-01",
+                              },
+                              {
+                                text: "БПА21-01",
+                                value: "БПА21-01",
+                              },
+                            ],
+                            onFilter: (value: any, record: any) =>
+                              record.group
+                                ? record.group.includes(value)
+                                : false,
+                          },
+                          { title: "Время", dataIndex: "time", key: "time" },
+                        ];
+                        Modal.info({
+                          title: "Результаты учеников",
+                          width: "100vw",
+                          content: (
+                            <>
+                              <Table
+                                style={{ position: "relative", left: "-7vw" }}
+                                dataSource={test?.users}
+                                columns={columns}
+                                rowKey="name"
+                                size="small"
+                                onChange={(pagination, filters, sorter) => {
+                                  console.log(
+                                    "Various parameters",
+                                    pagination,
+                                    filters,
+                                    sorter
+                                  );
+                                  setFilteredInfo(filters);
+                                }}
+                              />
+                            </>
+                          ),
+                        });
+                      }}
+                    >
+                      Посмотреть результаты
+                    </Button>
+                  ) : (
+                    <Button
+                      className={"test--page--button"}
+                      type="primary"
+                      disabled={
+                        !test?.users?.some(
+                          (user: any) => user.id === authData.uid
+                        )
+                      }
+                      onClick={() => {
+                        Modal.info({
+                          title: "Ваши результаты",
+                          centered: true,
+                          content: (
+                            <>
+                              <p>
+                                Правильных ответов:{" "}
+                                <strong>
+                                  {
+                                    test?.users?.find(
+                                      (user: any) => user.id === authData.uid
+                                    ).rightCount
+                                  }
+                                </strong>
+                              </p>
+                              <p>
+                                Неправильных ответов:{" "}
+                                <strong>
+                                  {
+                                    test?.users?.find(
+                                      (user: any) => user.id === authData.uid
+                                    ).wrongCount
+                                  }
+                                </strong>
+                              </p>
+                              <p>
+                                Время:{" "}
+                                <strong>
+                                  {Math.floor(
+                                    test?.users?.find(
+                                      (user: any) => user.id === authData.uid
+                                    ).time / 60
+                                  )}
+                                  :
+                                  {test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).time %
+                                    60 <
+                                  10
+                                    ? "0"
+                                    : ""}
+                                  {test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).time % 60}
+                                </strong>
+                              </p>
+                              <p>
+                                Процент правильных ответов:{" "}
+                                <strong>
+                                  {
+                                    test?.users?.find(
+                                      (user: any) => user.id === authData.uid
+                                    ).rightPercentage
+                                  }
+                                  %
+                                </strong>
+                              </p>
+                            </>
+                          ),
+                        });
+                      }}
+                    >
+                      Показать результаты
+                    </Button>
+                  )}
+                </Tooltip>
+                <Tooltip
+                  title={
+                    test?.users?.some((user: any) => user.id === authData.uid)
+                      ? "Вы уже прошли этот тест"
+                      : "Нажмите, чтобы начать тест"
+                  }
+                  placement={"top"}
+                >
+                  <Button
+                    onClick={() => {
+                      setTestState((prevTestState: any) => ({
+                        ...prevTestState,
+                        isStarted: true,
+                      }));
+                    }}
+                    className={"test--page--button"}
+                    type="primary"
+                    style={{ marginLeft: 20 }}
+                    // disabled={
+                    //   testState.isFinished ||
+                    //   test?.users?.some((user: any) => user.id === authData.uid)
+                    // }
+                  >
+                    Старт
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return loadedImages < totalImages ? (
+    <>
+      {contextHolder}
+      <div className={"right--body--section"}>
+        <div className={"test--page--top--section"}>
+          <div className={"test--page--top--section--left"}>
+            <h1 className={"test--page--top--section--left--title"}>
+              <Skeleton.Input
+                className="test--page--top--section--left--title"
+                active
+              />
+            </h1>
+            <p className={"test--page--top--section--left--description"}>
+              <Skeleton.Input
+                style={{ width: "20vw", height: "1vw" }}
+                active
+                size={"large"}
+              />
+            </p>
+          </div>
+          <div className={"test--page--top--section--right--timer"}>
+            <Skeleton.Input />
+          </div>
+        </div>
+        <div className={"test--page--middle--section"}>
+          <div className={"test--page--middle--section--left"}>
+            <Skeleton.Avatar
+              className="test--page--middle--section--left--image"
+              style={{
+                height: "29vh",
+                width: "35vw",
+                borderRadius: "3vw",
+              }}
+              shape="square"
+              active
+            />
+          </div>
+          <div className={"test--page--middle--section--right"}>
+            <div
+              className={
+                "test--page--middle--section--right--question--container"
+              }
+            >
+              <>
+                <Skeleton.Input
+                  className="test--page--middle--section--description"
+                  active
+                  style={{
+                    height: "2vh",
+                  }}
+                  size={"large"}
+                />
+                <Skeleton.Input
+                  style={{
+                    height: "2vh",
+                  }}
+                  className="test--page--middle--section--description"
+                  active
+                  size={"large"}
+                />
+                <Skeleton.Input
+                  className="test--page--middle--section--description"
+                  active
+                  style={{
+                    height: "2vh",
+                  }}
+                  size={"large"}
+                />
+              </>
+            </div>
+          </div>
         </div>
         <div className={"test--page--bottom--section"}>
-          {testState.isStarted ? (
-            <Radio.Group buttonStyle={"solid"}>
-              <Space direction="vertical">
-                {answerTransitions((style, item) => (
-                  <animated.div style={style}>
-                    <Radio.Button
-                      onChange={() => setValue(item.text)}
-                      value={item.text}
-                    >
-                      {item.text}
-                    </Radio.Button>
-                  </animated.div>
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+          <Skeleton.Input
+            style={{
+              width: "70vw",
+              height: "2vh",
+              marginBottom: "2vh",
+            }}
+            active
+            size={"large"}
+          />
+        </div>
+        <div className={"test--page--bottom--section--buttons"}>
+          <Skeleton.Button
+            style={{
+              width: "20vw",
+              height: "5vh",
+            }}
+            active
+          />
+          <Skeleton.Button
+            style={{
+              width: "20vw",
+              height: "5vh",
+              marginLeft: "2vw",
+            }}
+            active
+          />
+        </div>
+      </div>
+      <div
+        className="preload"
+        style={{
+          position: "absolute",
+          left: "-100vw",
+          top: "-100vh",
+          zIndex: -9999,
+        }}
+      >
+        <img
+          src={categoryImage()}
+          onLoad={() => {
+            setLoadedImages(loadedImages + 1);
+          }}
+        />
+      </div>
+    </>
+  ) : (
+    <>
+      {contextHolder}
+      <div
+        className={"right--body--section"}
+        style={{
+          backgroundImage: testState.isStarted ? `url(${imgSrc})` : "none",
+        }}
+      >
+        <div className="right--body--section--overlay">
+          <div className={"test--page--top--section"}>
+            <div className={"test--page--top--section--left"}>
+              <h1 className={"test--page--top--section--left--title"}>
+                {test?.name}
+              </h1>
+              <p className={"test--page--top--section--left--description"}>
+                {testState.isStarted
+                  ? "Ответьте на вопросы снизу"
+                  : "Прочтите следующие инструкции"}
+              </p>
+            </div>
+            <div className={"test--page--top--section--right--timer"}>
+              <strong>{minutes}:</strong>
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {secondTransitions((style, item) => (
+                  <animated.strong style={style}>
+                    {item < 10 ? "0" : ""}
+                    {item}
+                  </animated.strong>
                 ))}
-              </Space>
-            </Radio.Group>
-          ) : (
-            <p>
-              {`Этот тест состоит из ${test?.questions?.length} вопросов с
+              </div>
+            </div>
+          </div>
+          <div className={"test--page--middle--section"}>
+            <div className={"test--page--middle--section--left"}>
+              <animated.div
+                className={"test--page--middle--section--left--image"}
+              >
+                <Spin
+                  spinning={loading}
+                  indicator={<LoadingOutlined style={{ fontSize: 50 }} spin />}
+                >
+                  <img
+                    className={"test--image"}
+                    src={imgSrc}
+                    onLoad={() => {
+                      setLoading(false);
+                    }}
+                  />
+                </Spin>
+              </animated.div>
+            </div>
+            <div className={"test--page--middle--section--right"}>
+              {testState.isStarted ? (
+                <div className={"test--page--middle--section--right--count"}>
+                  <h3
+                    style={{
+                      marginRight: "0.5vw",
+                    }}
+                  >
+                    Вопрос
+                  </h3>
+                  <div
+                    style={{
+                      position: "relative",
+                      display: "inline-block",
+                      alignItems: "center",
+                      width: "1vw",
+                      height: "5px",
+                      marginRight: "0.5vw",
+                    }}
+                  >
+                    {questionCountTransitions((style, item) => (
+                      <animated.h3
+                        style={{
+                          ...style,
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                        }}
+                      >
+                        {item + 1}
+                      </animated.h3>
+                    ))}
+                  </div>
+                  <h3>{`из ${test?.questions?.length}`}</h3>
+                </div>
+              ) : null}
+              <div
+                className={
+                  "test--page--middle--section--right--question--container"
+                }
+              >
+                {testState.isStarted ? (
+                  transitions((style, item) => (
+                    <animated.p
+                      style={style}
+                      className={"test--page--middle--section--right--question"}
+                    >
+                      {item}
+                    </animated.p>
+                  ))
+                ) : (
+                  <>
+                    <p className="test--page--middle--section--description">
+                      <strong>Дата добавления:</strong> {test?.date}
+                    </p>
+                    <p className="test--page--middle--section--description">
+                      <strong>Время на тест:</strong> {test?.time / 60} минут
+                    </p>
+                    <p className="test--page--middle--section--description">
+                      <strong>Категория:</strong> {test?.category}
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className={"test--page--bottom--section"}>
+            {testState.isStarted ? (
+              <Radio.Group buttonStyle={"solid"}>
+                <Space direction="vertical">
+                  {answerTransitions((style, item) => (
+                    <animated.div style={style}>
+                      <Radio.Button
+                        onChange={() => setValue(item.text)}
+                        value={item.text}
+                      >
+                        {item.text}
+                      </Radio.Button>
+                    </animated.div>
+                  ))}
+                </Space>
+              </Radio.Group>
+            ) : (
+              <p>
+                {`Этот тест состоит из ${test?.questions?.length} вопросов с
               множественным выбором. Чтобы успешно пройти тесты, важно хорошо
               разбираться в темах. Имейте в виду следующее: Отведённое время -
               вам нужно выполнить каждую из ваших попыток за один присест, так
@@ -457,150 +1067,158 @@ export default function TestPage() {
               правильными ответами после вашей последней попытки. Чтобы начать,
               нажмите кнопку "Старт". Когда закончите, нажмите кнопку
               "Завершить".`}
-            </p>
-          )}
-        </div>
-        <div className={"test--page--bottom--section--buttons"}>
-          {testState.isStarted ? (
-            currentQuestionIndex === test?.questions.length - 1 ? (
-              <Button
-                className={"test--page--button"}
-                type="primary"
-                size="large"
-                onClick={() => {
-                  handleAnswer();
-                  setTestState((prevTestState: any) => ({
-                    ...prevTestState,
-                    isFinished: true,
-                    isStarted: false,
-                  }));
-                }}
-              >
-                Завершить
-              </Button>
-            ) : (
-              <Button
-                className={"test--page--button"}
-                type="primary"
-                size="large"
-                onClick={() => {
-                  handleAnswer();
-                }}
-              >
-                Следующий вопрос
-              </Button>
-            )
-          ) : (
-            <>
-              <Tooltip
-                title={
-                  !test?.users?.some((user: any) => user.id === authData.uid)
-                    ? "Вы ещё не прошли этот тест"
-                    : "Показать результаты"
-                }
-                placement={"top"}
-              >
+              </p>
+            )}
+          </div>
+          <div className={"test--page--bottom--section--buttons"}>
+            {testState.isStarted ? (
+              currentQuestionIndex === test?.questions.length - 1 ? (
                 <Button
                   className={"test--page--button"}
                   type="primary"
                   size="large"
-                  disabled={
-                    !test?.users?.some((user: any) => user.id === authData.uid)
-                  }
                   onClick={() => {
-                    Modal.info({
-                      title: "Ваши результаты",
-                      content: (
-                        <>
-                          <p>
-                            Правильных ответов:{" "}
-                            <strong>
-                              {
-                                test?.users?.find(
-                                  (user: any) => user.id === authData.uid
-                                ).rightCount
-                              }
-                            </strong>
-                          </p>
-                          <p>
-                            Неправильных ответов:{" "}
-                            <strong>
-                              {
-                                test?.users?.find(
-                                  (user: any) => user.id === authData.uid
-                                ).wrongCount
-                              }
-                            </strong>
-                          </p>
-                          <p>
-                            Время:{" "}
-                            <strong>
-                              {Math.floor(
-                                test?.users?.find(
-                                  (user: any) => user.id === authData.uid
-                                ).time / 60
-                              )}
-                              :
-                              {test?.users?.find(
-                                (user: any) => user.id === authData.uid
-                              ).time %
-                                60 <
-                              10
-                                ? "0"
-                                : ""}
-                              {test?.users?.find(
-                                (user: any) => user.id === authData.uid
-                              ).time % 60}
-                            </strong>
-                          </p>
-                          <p>
-                            Процент правильных ответов:{" "}
-                            <strong>
-                              {
-                                test?.users?.find(
-                                  (user: any) => user.id === authData.uid
-                                ).rightPercentage
-                              }
-                              %
-                            </strong>
-                          </p>
-                        </>
-                      ),
-                    });
-                  }}
-                >
-                  Показать результаты
-                </Button>
-              </Tooltip>
-              <Tooltip
-                title={
-                  test?.users?.some((user: any) => user.id === authData.uid)
-                    ? "Вы уже прошли этот тест"
-                    : "Нажмите, чтобы начать тест"
-                }
-                placement={"top"}
-              >
-                <Button
-                  onClick={() => {
+                    handleAnswer();
                     setTestState((prevTestState: any) => ({
                       ...prevTestState,
-                      isStarted: true,
+                      isFinished: true,
+                      isStarted: false,
                     }));
                   }}
+                >
+                  Завершить
+                </Button>
+              ) : (
+                <Button
                   className={"test--page--button"}
                   type="primary"
                   size="large"
-                  style={{ marginLeft: 20 }}
-                  // disabled={
-                  //   testState.isFinished ||
-                  //   test?.users?.some((user: any) => user.id === authData.uid)
-                  // }
+                  onClick={() => {
+                    handleAnswer();
+                  }}
                 >
-                  Старт
+                  Следующий вопрос
                 </Button>
-              </Tooltip>
-            </>
-          )}
+              )
+            ) : (
+              <>
+                <Tooltip
+                  title={
+                    !test?.users?.some((user: any) => user.id === authData.uid)
+                      ? "Вы ещё не прошли этот тест"
+                      : "Показать результаты"
+                  }
+                  placement={"top"}
+                >
+                  <Button
+                    className={"test--page--button"}
+                    type="primary"
+                    size="large"
+                    disabled={
+                      !test?.users?.some(
+                        (user: any) => user.id === authData.uid
+                      )
+                    }
+                    onClick={() => {
+                      Modal.info({
+                        title: "Ваши результаты",
+                        styles: {
+                          mask: {
+                            backdropFilter: "blur(10px)",
+                          },
+                        },
+                        content: (
+                          <>
+                            <p>
+                              Правильных ответов:{" "}
+                              <strong>
+                                {
+                                  test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).rightCount
+                                }
+                              </strong>
+                            </p>
+                            <p>
+                              Неправильных ответов:{" "}
+                              <strong>
+                                {
+                                  test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).wrongCount
+                                }
+                              </strong>
+                            </p>
+                            <p>
+                              Время:{" "}
+                              <strong>
+                                {Math.floor(
+                                  test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).time / 60
+                                )}
+                                :
+                                {test?.users?.find(
+                                  (user: any) => user.id === authData.uid
+                                ).time %
+                                  60 <
+                                10
+                                  ? "0"
+                                  : ""}
+                                {test?.users?.find(
+                                  (user: any) => user.id === authData.uid
+                                ).time % 60}
+                              </strong>
+                            </p>
+                            <p>
+                              Процент правильных ответов:{" "}
+                              <strong>
+                                {
+                                  test?.users?.find(
+                                    (user: any) => user.id === authData.uid
+                                  ).rightPercentage
+                                }
+                                %
+                              </strong>
+                            </p>
+                          </>
+                        ),
+                      });
+                    }}
+                  >
+                    Показать результаты
+                  </Button>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    test?.users?.some((user: any) => user.id === authData.uid)
+                      ? "Вы уже прошли этот тест"
+                      : "Нажмите, чтобы начать тест"
+                  }
+                  placement={"top"}
+                >
+                  <Button
+                    onClick={() => {
+                      setTestState((prevTestState: any) => ({
+                        ...prevTestState,
+                        isStarted: true,
+                      }));
+                    }}
+                    className={"test--page--button"}
+                    type="primary"
+                    size="large"
+                    style={{ marginLeft: 20 }}
+                    // disabled={
+                    //   testState.isFinished ||
+                    //   test?.users?.some((user: any) => user.id === authData.uid)
+                    // }
+                  >
+                    Старт
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>

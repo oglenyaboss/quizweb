@@ -6,6 +6,7 @@
   font-weight: 700;
   line-height: normal;
 }
+
 .achievements--body--section--container {
   width: 33vw;
   height: 35vh;
@@ -13,7 +14,7 @@
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
   border-radius: 2vw;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  box-shadow: var(--shadow);
 }
 
 .featured--body--title {
@@ -43,6 +44,8 @@
 }
 
 .featured--body--container {
+  width: 33vw;
+  height: 35vh;
   display: grid;
   gap: 1.7vw;
   grid-template-columns: repeat(2, 1fr); /* 2 столбца с равными ширинами */
@@ -52,7 +55,8 @@
   height: 16vh;
   flex-shrink: 0;
   border-radius: 2vw;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  box-shadow: var(--shadow);
+  filter: brightness(0.7);
 }
 .featured--item {
   position: relative;
@@ -65,9 +69,9 @@
   padding-left: 1.4vw;
   padding-bottom: 1.4vh;
   width: 100%; /* Делаем блок текста шириной 100% родительского контейнера */
-  color: #fff;
+  color: #fff !important;
   font-family: Poppins, sans-serif;
-  font-size: 1.4vw;
+  font-size: 1rem;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
@@ -101,7 +105,7 @@
   align-items: end;
   margin-right: 3vw;
   border-radius: 30px;
-  box-shadow: 0px 15px 40px 5px #ededed;
+  box-shadow: var(--shadow);
 }
 
 .info--body--right--section {
@@ -139,8 +143,8 @@
 
 .right--body--section {
   border-radius: 2vw;
-  background: #fff;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  background: var(--secondary-background-color);
+  box-shadow: var(--shadow);
   height: 84vh;
   width: 75vw;
   display: flex;
@@ -176,8 +180,8 @@
   height: 5vw;
   flex-shrink: 0;
   border-radius: 1vw;
-  background: #fff;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  background: var(--background-color);
+  box-shadow: var(--shadow);
 }
 
 .user--info--stats--img {
@@ -218,4 +222,121 @@
 
 .achievement--img {
   width: 7vw;
+}
+
+@media screen and (max-width: 768px) {
+  .body--container {
+    width: 90%;
+    border-radius: 40px;
+    padding: 5vw 5vw 5vw 5vw;
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    overflow: hidden;
+    background-color: var(--secondary-background-color);
+  }
+  .logo--main {
+    width: 35vw;
+    height: 17vh;
+    border-radius: 30px;
+    flex-shrink: 0;
+  }
+
+  .user--logo--main {
+    width: 35vw;
+    height: 17vh;
+    border-radius: 30px;
+    flex-shrink: 0;
+  }
+  .user--info--main {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+  }
+
+  .body--container h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .body--container h3 {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .featured--tests {
+    height: 30vh;
+    gap: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .featured--item--image {
+    width: 39vw;
+    height: 13.5vh;
+    border-radius: 30px;
+    filter: brightness(0.7);
+  }
+
+  .featured--item p {
+    font-size: 1rem;
+    padding-left: 20px;
+  }
+
+  .featured--tests a {
+    width: 37vw;
+
+    border-radius: 30px;
+  }
+
+  .main--page--bottom--top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1vh;
+  }
+
+  .main--page--bottom--top h2 {
+    font-family: Poppins, sans-serif;
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 0;
+  }
+
+  .main--page--bottom--top a {
+    display: flex;
+  }
+
+  .main--page--bottom--top p {
+    padding-right: 20px;
+    display: flex;
+    align-items: end;
+    font-family: Poppins, sans-serif;
+    font-size: 0.8rem;
+    font-style: normal;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .main--page--middle h2 {
+    margin: 0;
+  }
+
+  .user--info--stats--img {
+    width: 50%;
+    height: 25vw;
+  }
+
+  .achievement--name {
+    font-size: 0.5rem;
+  }
+
+  .achievements {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 }

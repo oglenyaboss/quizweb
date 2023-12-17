@@ -88,6 +88,7 @@ export default function TestPage() {
               fastestTest: prevAuthData.stats.fastestTest > time ? time : 0,
               wrongAnswers: prevAuthData.stats.wrongAnswers + testState.wrong,
             },
+            timeStamp: Date.now(),
           }));
           setTestData((prevTestData: any) => {
             const newTestData = [...prevTestData];
@@ -355,6 +356,7 @@ export default function TestPage() {
               ) : (
                 <div ref={ref1}>
                   <Input
+                    placeholder="Введите название теста"
                     value={test?.name}
                     onChange={(e) => {
                       setTestData((prevTestData: TestData[]) => {
@@ -494,6 +496,7 @@ export default function TestPage() {
                     <strong>Время на тест:</strong>{" "}
                     <div ref={ref5}>
                       <InputNumber
+                        type="primary"
                         value={time}
                         step={60}
                         onChange={(value) => {

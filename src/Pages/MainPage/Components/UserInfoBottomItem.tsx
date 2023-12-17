@@ -3,11 +3,13 @@ import CORRECT from "../../../assets/Lottie/CORRECT.json";
 import FINISH from "../../../assets/Lottie/FINISH.json";
 import Lottie from "react-lottie-player";
 import React from "react";
+import { Table, Modal } from "antd";
+import TestContext from "../../../Misc/TestsContext";
+import AuthContext from "../../../Misc/AuthContext";
 
-export default function UserInfoBottomItem(props: {
-  title: string;
-  count: number;
-}) {
+export default function UserInfoBottomItem(props: any) {
+  const { testData } = React.useContext(TestContext);
+  const { authData } = React.useContext(AuthContext);
   const image = () => {
     switch (props.title) {
       case "Самый быстрый тест":
@@ -16,13 +18,81 @@ export default function UserInfoBottomItem(props: {
         return FINISH;
       case "Правильных ответов":
         return CORRECT;
+      case "самый быстрый тест":
+        return CLOCK;
+      case "тестов пройдено":
+        return FINISH;
+      case "правильных ответов":
+        return CORRECT;
     }
   };
 
   const [firstLottiePlaying, setFirstLottiePlaying] = React.useState(true);
 
+  const columns = [
+    {
+      title: "Название",
+      dataIndex: "name",
+      key: "name",
+      onclick: () => {
+        console.log("clicked");
+      },
+    },
+    {
+      title: "Правильных ответов",
+      dataIndex: "correct",
+      key: "correct",
+    },
+    {
+      title: "Время",
+      dataIndex: "time",
+      key: "time",
+    },
+    {
+      title: "% правильных ответов",
+      dataIndex: "percent",
+      key: "percent",
+    },
+  ];
+
+  const filteredTests = testData.filter((test: any) => {
+    return test.users.some((user: any) => {
+      return user.id === authData.uid;
+    });
+  });
+
+  const dataSource = filteredTests.map((test: any) => {
+    const user = test.users.find((user: any) => {
+      return user.id === authData.uid;
+    });
+    return {
+      key: test.id,
+      name: test.name,
+      correct: user.rightCount,
+      time: user.time,
+      percent: `${Math.round(
+        (user.rightCount / (user.rightCount + user.wrongCount)) * 100
+      )}%`,
+    };
+  });
+
   return (
-    <div className={"user--info--stats"}>
+    <div
+      className={"user--info--stats"}
+      onClick={() => {
+        console.log(filteredTests);
+        Modal.info({
+          width: "80vw",
+          styles: {
+            mask: {
+              backdropFilter: "blur(10px)",
+            },
+          },
+          title: "Статистика",
+          content: <Table dataSource={dataSource} columns={columns} />,
+        });
+      }}
+    >
       <div
         onMouseEnter={() => {
           setFirstLottiePlaying(true);

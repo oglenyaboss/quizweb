@@ -13,6 +13,7 @@ export type AuthData = {
     fastestTest: number;
   };
   achievements: { name: string; description: string; locked: boolean }[];
+  timeStamp: number;
 };
 
 type AuthContextType = {
@@ -34,7 +35,9 @@ const AuthContext = React.createContext<AuthContextType>({
       fastestTest: 0,
     },
     achievements: [{ name: "", description: "", locked: true }],
+    timeStamp: Date.now(),
   },
+
   setAuthData: () => {},
 });
 

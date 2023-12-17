@@ -1,6 +1,6 @@
 .test--page--top--section {
   display: flex;
-  margin: 3vh 3vw 2vh 3vw;
+  margin: 3vw 3vw 2vh 3vw;
   justify-content: space-between;
 }
 
@@ -47,7 +47,7 @@ p {
   height: 29vh;
   width: 35vw;
   border-radius: 2vw;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
+  box-shadow: var(--shadow);
 }
 
 .test--page--bottom--section {
@@ -100,4 +100,58 @@ input {
 
 .test--page--middle--section--right--count {
   display: flex;
+}
+
+.right--body--section--overlay {
+  overflow: hidden;
+  border-radius: 2vw;
+  height: 84vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  backdrop-filter: blur(20px);
+}
+
+@media screen and (max-width: 768px) {
+  .test-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .test--image {
+    width: 100%;
+    height: 20vh;
+    border-radius: 30px;
+  }
+  .test--page--middle--section--right--question--title {
+    font-size: 1.5rem;
+  }
+  .test--page--middle--section--description {
+    font-size: 1rem;
+  }
+  .test--page--bottom--section--buttons {
+    margin: 0;
+    justify-content: space-between;
+  }
+  .test--page--top--info--top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .test--page--top--info--top h3 {
+    font-size: 1rem;
+  }
+  .test--page--top--section--right--timer {
+    font-size: 1rem;
+  }
+  .test--page--top--info--question h1 {
+    font-size: 1rem;
+  }
+  .test--page--bottom--section--buttons {
+    justify-content: end;
+  }
+  .ant-modal-confirm-content p {
+    font-size: 1rem;
+  }
 }

@@ -1,7 +1,34 @@
 import { Popover, QRCode } from "antd";
 import Lottie from "react-lottie-player";
 import TELEGRAM from "../../assets/Lottie/data.json";
+import MobileTelegram from "../../assets/Lottie/TELEGRAM.json";
+import "./Notifications.css";
 export default function NotificationsPage() {
+  if (window.innerWidth < 768) {
+    return (
+      <div className={"support--page"}>
+        <div>
+          <div className="telegram--support--icon">
+            <a className="tg--icon" href="https://t.me/quizhelpandfeedback_bot">
+              <Lottie
+                className="telegram--support--lottie"
+                animationData={MobileTelegram}
+                play={true}
+                loop={false}
+                speed={2}
+                style={{ width: 400 }}
+              />
+            </a>
+          </div>
+          <p className="telegram--support--text">
+            Переходи в нашего бота🤖 <br />и получай уведомления о новых
+            тестах🔔
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="right--body--section">
       <div className={"support--page"}>

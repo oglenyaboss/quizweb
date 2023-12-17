@@ -40,4 +40,11 @@
     line-height: normal;
     text-decoration: none;
   }
+  .error--page--description {
+    font-size: 1rem;
+    text-align: center;
+  }
+  .button {
+    font-size: 1rem;
+  }
 }

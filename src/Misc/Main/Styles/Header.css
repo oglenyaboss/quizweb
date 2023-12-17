@@ -11,19 +11,6 @@ Header {
   position: relative;
 }
 
-.search {
-  padding-left: 3vw; /* Ð Ð°ÑÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð¾Ñ‚ Ð»ÐµÐ²Ð¾Ð³Ð¾ ÐºÑ€Ð°Ñ Ð´Ð¾ Ñ‚ÐµÐºÑÑ‚Ð° */
-  background: transparent;
-  width: 24vw;
-  height: 6vh;
-  flex-shrink: 0;
-  border-radius: 2vw;
-  box-shadow: 0 1vw 4vh 0.3vw #ededed;
-  border-width: 0;
-  position: relative;
-  font-size: 1vw;
-}
-
 .begin--button {
   display: flex;
   justify-content: center;
@@ -65,7 +52,7 @@ Header {
 }
 
 .user--name {
-  color: #696f79;
+  color: var(--text-color) !important;
   font-family: Poppins, sans-serif;
   font-size: 1vw;
   font-style: normal;
@@ -79,4 +66,57 @@ Header {
   height: 5vw;
   flex-shrink: 0;
   border-radius: 5vw;
+}
+
+@media screen and (max-width: 768px) {
+  header {
+    width: 100%;
+    display: flex;
+  }
+  .header--container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 110px;
+    border-radius: 30px;
+    background-color: var(--secondary-background-color);
+    flex-shrink: 0;
+    padding: 0 5vw 0 5vw;
+  }
+  .user--logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    flex-shrink: 0;
+  }
+  .user--name {
+    font-size: 0.7rem;
+    font-weight: 400;
+  }
+  .title {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+
+  .ant-modal-body p {
+    font-size: 1rem;
+  }
+
+  .achievements--container {
+    margin: 3vh 0 3vh 0;
+    padding: 3vh 1vw 3vh 1vw;
+    border-radius: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: var(--secondary-background-color);
+  }
+
+  .achievements--container p {
+    font-size: 0.8rem;
+  }
+  .achievement--img {
+    width: 15vw;
+  }
 }

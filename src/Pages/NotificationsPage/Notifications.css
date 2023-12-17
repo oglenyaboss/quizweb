@@ -40,3 +40,13 @@
 .tg--icon:hover {
   transform: scale(1.05);
 }
+
+@media screen and (max-width: 768px) {
+  .telegram--support--text {
+    font-size: 1rem !important;
+  }
+  .telegram--support--icon {
+    display: flex;
+    justify-content: center;
+  }
+}

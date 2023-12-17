@@ -7,9 +7,11 @@ import ZERO from "../../../assets/Lottie/ZERO.json";
 import CRYSTALL from "../../../assets/Lottie/CRYSTALL.json";
 import Lottie from "react-lottie-player";
 import React from "react";
+import negativeSound from "../../../assets/Sounds/Bright.mp3";
 
 export default function Achievement(props: any) {
   const [messageApi, contextHolder] = message.useMessage();
+  const audio = new Audio(negativeSound);
 
   const [lottiePlaying, setLottiePlaying] = React.useState(false);
 
@@ -61,8 +63,11 @@ export default function Achievement(props: any) {
             }
           }}
           onClick={() => {
+            props.locked && audio.play();
             props.locked
-              ? messageApi.error("Достижение заблокировано")
+              ? messageApi.error({
+                  content: "Достижение заблокировано!",
+                })
               : Modal.success({
                   title: props.name,
                   content: props.description,
